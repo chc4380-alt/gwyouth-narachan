@@ -1,0 +1,2747 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>청소년방과후아카데미 인사카드</title>
+<style>
+/* ═══════════════════════════════════════════
+   WorkSTORY ERP Style
+   주황 툴바 + 격자 테이블 + 하단 상세패널
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --or1:#e8720c; --or2:#f28c35; --or3:#fde8d0; --or4:#fff4ec;
+  --blue:#1a5fa8; --blue-l:#e8f0fb;
+  --gray0:#f0f0f0; --gray1:#e0e0e0; --gray2:#c8c8c8; --gray3:#a0a0a0;
+  --gray4:#707070; --gray5:#404040; --gray6:#1c1c1c;
+  --white:#ffffff;
+  --row-sel:#cce0ff; --row-hover:#f5f5f5;
+  --border:#c8c8c8; --border-d:#a0a0a0;
+  --danger:#cc2200; --danger-l:#fff0ee;
+  --green:#1a7a40; --green-l:#e8f5ee;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px;color:var(--gray6);background:var(--gray0);}
+
+/* ── TITLE BAR ── */
+.title-bar{
+  height:28px;background:linear-gradient(to bottom,#f8f8f8,#e4e4e4);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 8px;gap:8px;
+  font-size:12px;color:var(--gray5);user-select:none;
+}
+.title-bar .app-name{font-weight:700;color:var(--or1);}
+.title-bar .sep{color:var(--gray2);}
+.title-bar .menu-bar{display:flex;gap:1px;}
+.menu-btn{
+  padding:2px 8px;border:none;background:none;
+  font-size:11px;color:var(--gray5);cursor:pointer;font-family:inherit;
+  border-radius:2px;
+}
+.menu-btn:hover{background:var(--or3);}
+.title-bar-right{margin-left:auto;display:flex;align-items:center;gap:6px;}
+.title-save-badge{
+  display:flex;align-items:center;gap:4px;
+  padding:1px 8px;border-radius:10px;font-size:10px;font-weight:700;cursor:pointer;
+  border:1px solid;
+}
+.title-save-badge.linked{background:var(--green-l);border-color:#a0d0b0;color:var(--green);}
+.title-save-badge.saving{background:#fffbeb;border-color:#fcd34d;color:#92400e;animation:blink .8s infinite;}
+.title-save-badge.unlinked{background:var(--gray0);border-color:var(--gray2);color:var(--gray4);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes updatePulse{0%,100%{box-shadow:0 0 0 0 rgba(42,122,42,.5)}50%{box-shadow:0 0 0 5px rgba(42,122,42,0)}}
+
+/* ── TOOLBAR ── */
+.toolbar{
+  height:60px;
+  background:linear-gradient(to bottom,#f5a94a,var(--or1));
+  border-bottom:2px solid #c45e00;
+  display:flex;align-items:center;padding:0 6px;gap:2px;
+  user-select:none;
+}
+.tb-sep{width:1px;height:44px;background:rgba(255,255,255,.3);margin:0 4px;}
+.tb-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;width:52px;height:52px;border:none;background:none;
+  cursor:pointer;border-radius:3px;font-family:inherit;
+  transition:background .1s;
+}
+.tb-btn:hover{background:rgba(255,255,255,.25);}
+.tb-btn.active{background:rgba(255,255,255,.35);outline:1px solid rgba(255,255,255,.6);}
+.tb-btn .tb-icon{font-size:20px;line-height:1;}
+.tb-btn .tb-label{font-size:10px;color:#fff;font-weight:700;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.3);}
+.tb-group{display:flex;align-items:center;gap:1px;}
+
+/* ── LAYOUT ── */
+.app-body{display:flex;flex-direction:column;height:calc(100vh - 88px);}
+
+/* ── FILTER BAR ── */
+.filter-bar{
+  height:32px;background:linear-gradient(to bottom,#e8e8e8,#d8d8d8);
+  border-bottom:1px solid var(--border-d);
+  display:flex;align-items:center;padding:0 8px;gap:6px;flex-shrink:0;
+}
+.filter-bar label{font-size:11px;color:var(--gray5);white-space:nowrap;}
+.filter-bar input,.filter-bar select{
+  height:20px;padding:0 5px;border:1px solid var(--border-d);
+  font-size:11px;font-family:inherit;background:#fff;
+  border-radius:1px;outline:none;
+}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--or1);}
+.filter-bar input[type=text]{width:120px;}
+.filter-sep{width:1px;height:18px;background:var(--border);margin:0 3px;}
+.filter-btn{
+  height:20px;padding:0 8px;border:1px solid var(--border-d);
+  background:linear-gradient(to bottom,#fafafa,#e8e8e8);
+  font-size:11px;font-family:inherit;cursor:pointer;border-radius:1px;
+}
+.filter-btn:hover{background:linear-gradient(to bottom,#fff4ec,#fde8d0);border-color:var(--or1);}
+.filter-btn.primary{background:linear-gradient(to bottom,var(--or2),var(--or1));color:#fff;border-color:#c45e00;}
+.filter-btn.primary:hover{background:linear-gradient(to bottom,#f5a94a,var(--or2));}
+
+/* ── MAIN SPLITTER ── */
+.main-split{display:flex;flex:1;overflow:hidden;}
+
+/* ── LEFT NAV ── */
+.left-nav{
+  width:28px;flex-shrink:0;
+  background:linear-gradient(to bottom,#e8e8e8,#d0d0d0);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;padding-top:4px;gap:2px;
+}
+.lnav-btn{
+  width:22px;height:22px;border:1px solid var(--border-d);border-radius:2px;
+  background:linear-gradient(to bottom,#f8f8f8,#e0e0e0);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;cursor:pointer;
+}
+.lnav-btn:hover{background:var(--or3);border-color:var(--or1);}
+
+/* ── CONTENT AREA ── */
+.content-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── GRID TABLE ── */
+.grid-wrap{flex:1;overflow:auto;background:#fff;}
+.grid-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;}
+.grid-table thead th{
+  background:linear-gradient(to bottom,#f0ece4,#ddd8cc);
+  border-right:1px solid var(--border);border-bottom:2px solid var(--or1);
+  padding:4px 5px;text-align:center;font-weight:700;color:var(--gray5);
+  white-space:nowrap;position:sticky;top:0;z-index:5;
+}
+.grid-table thead th:first-child{background:linear-gradient(to bottom,#e8e4dc,#d4d0c8);}
+.grid-table tbody td{
+  border-right:1px solid #e8e8e8;border-bottom:1px solid #ededea;
+  padding:6px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  cursor:pointer;color:var(--gray6);vertical-align:middle;line-height:1.5;
+}
+.grid-table tbody tr:hover td{background:var(--row-hover);}
+.grid-table tbody tr.selected td{background:var(--row-sel)!important;}
+.grid-table tbody tr.selected td{color:var(--gray6);}
+.grid-table .col-no{width:32px;text-align:center;color:var(--gray3);}
+.grid-table .col-photo{width:36px;text-align:center;}
+.grid-table .col-name{width:70px;font-weight:700;}
+.grid-table .col-school{width:90px;}
+.grid-table .col-grade{width:74px;text-align:center;}
+.grid-table .col-gender{width:34px;text-align:center;}
+.grid-table .col-birth{width:60px;text-align:center;}
+.grid-table .col-phone{width:100px;}
+.grid-table .col-guardian{width:80px;}
+.grid-table .col-group{width:70px;text-align:center;}
+.grid-table .col-status{width:52px;text-align:center;}
+.grid-table .col-year{width:44px;text-align:center;}
+.grid-table .col-date{width:60px;text-align:center;}
+.grid-table .col-sign{width:64px;text-align:center;}
+.grid-table .col-job{width:70px;text-align:center;}
+.grid-table .col-bean{width:60px;text-align:center;color:var(--or1);}
+.grid-table .col-actions{width:68px;text-align:center;}
+.grid-empty{padding:40px;text-align:center;color:var(--gray3);font-size:13px;}
+
+/* ── BOTTOM DETAIL PANEL ── */
+.detail-panel{
+  height:200px;flex-shrink:0;
+  background:#fff;border-top:2px solid var(--or1);
+  display:flex;overflow:hidden;
+}
+.detail-tabs{
+  width:100px;background:linear-gradient(to bottom,#e8e8e8,#d8d8d8);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:4px 0;gap:1px;
+}
+.dtab{
+  padding:5px 8px;font-size:11px;cursor:pointer;
+  border-left:3px solid transparent;color:var(--gray5);
+}
+.dtab:hover{background:var(--or4);color:var(--or1);}
+.dtab.active{background:#fff;border-left-color:var(--or1);color:var(--or1);font-weight:700;}
+.detail-content{flex:1;overflow:auto;padding:8px 12px;}
+.detail-section{display:none;}
+.detail-section.active{display:block;}
+
+/* 기본정보 그리드 */
+.info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px 12px;}
+.info-row{display:flex;align-items:center;gap:4px;}
+.info-label{font-size:10px;color:var(--gray3);white-space:nowrap;min-width:52px;font-weight:700;}
+.info-val{font-size:11px;color:var(--gray6);flex:1;border-bottom:1px solid var(--gray1);padding-bottom:1px;}
+.info-photo{width:52px;height:66px;border:1px solid var(--border);background:var(--gray0);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--gray2);overflow:hidden;margin-right:8px;flex-shrink:0;}
+.info-photo img{width:100%;height:100%;object-fit:cover;}
+.detail-top{display:flex;align-items:flex-start;gap:0;}
+
+/* ── FORM PANEL (등록/수정) ── */
+.form-panel{
+  flex:1;overflow-y:auto;background:var(--gray0);
+  padding:8px 10px;
+}
+.form-panel.hidden{display:none;}
+.fp-section{
+  background:#fff;border:1px solid var(--border);
+  margin-bottom:8px;
+}
+.fp-header{
+  background:linear-gradient(to bottom,var(--or3),#f5d5b0);
+  border-bottom:1px solid #d4a060;
+  padding:3px 8px;display:flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:700;color:#7a3800;
+}
+.fp-body{padding:8px 10px;}
+.fp-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px 10px;}
+.fp-grid.cols2{grid-template-columns:1fr 1fr;}
+.fp-grid.cols1{grid-template-columns:1fr;}
+.fp-full{grid-column:1/-1;}
+.fp-field{display:flex;flex-direction:column;gap:2px;}
+.fp-field label{font-size:10px;color:var(--gray4);font-weight:700;}
+.fp-field label .req{color:var(--danger);}
+.fp-field input,.fp-field select,.fp-field textarea{
+  width:100%;padding:3px 5px;border:1px solid var(--border-d);
+  font-size:11px;font-family:inherit;background:#fff;outline:none;
+}
+.fp-field input:focus,.fp-field select:focus,.fp-field textarea:focus{border-color:var(--or1);background:#fff8f0;}
+.fp-field textarea{resize:vertical;min-height:48px;line-height:1.5;}
+.fp-photo-row{display:flex;gap:10px;align-items:flex-start;}
+.fp-photo-box{
+  width:72px;height:92px;border:1px dashed var(--border-d);
+  background:var(--gray0);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;
+  font-size:10px;color:var(--gray3);gap:2px;overflow:hidden;
+}
+.fp-photo-box:hover{border-color:var(--or1);background:var(--or4);}
+.fp-photo-box img{width:100%;height:100%;object-fit:cover;}
+
+/* 태그 */
+.tag-wrap{display:flex;flex-wrap:wrap;gap:3px;padding:3px 0;}
+.etag{
+  padding:2px 7px;border:1px solid var(--border-d);font-size:10px;
+  cursor:pointer;background:#fff;color:var(--gray4);border-radius:2px;
+}
+.etag:hover{border-color:var(--or1);color:var(--or1);background:var(--or4);}
+.etag.on{background:var(--or1);border-color:#c45e00;color:#fff;}
+
+/* ── SCHEDULE TABLE ── */
+.sch-grid-wrap{flex:1;overflow:auto;background:#fff;}
+.sch-detail{height:180px;flex-shrink:0;background:#fff;border-top:2px solid var(--or1);padding:10px 14px;overflow:auto;}
+.sch-detail-inner{font-size:11px;color:var(--gray6);line-height:1.7;}
+.sch-detail-title{font-size:13px;font-weight:700;color:var(--or1);margin-bottom:6px;}
+
+/* ── ATTEND ── */
+.attend-bar{
+  height:32px;background:linear-gradient(to bottom,#e8f0e0,#d8e8d0);
+  border-bottom:1px solid #b0c8a0;
+  display:flex;align-items:center;padding:0 8px;gap:6px;flex-shrink:0;
+}
+.attend-bar label{font-size:11px;color:#2a5a20;font-weight:700;}
+.attend-bar input,.attend-bar select{
+  height:20px;padding:0 5px;border:1px solid #b0c8a0;
+  font-size:11px;font-family:inherit;background:#fff;outline:none;
+}
+.attend-stat{
+  height:24px;background:linear-gradient(to bottom,#fff8ec,#fde8cc);
+  border-bottom:1px solid #e0b870;
+  display:flex;align-items:center;padding:0 10px;gap:14px;
+  font-size:11px;color:#7a4800;flex-shrink:0;
+}
+.attend-stat span{white-space:nowrap;}
+.attend-stat .as-val{font-weight:700;color:var(--or1);}
+
+/* 서명부 */
+.signbook{background:#fff;padding:14px 40px 10px;color:#000;font-family:'Malgun Gothic',sans-serif;}
+/* 상단 헤더 */
+.sb-top-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.sb-logo-area{flex-shrink:0;}
+.sb-logo-img{height:52px;width:auto;display:block;}
+.sb-main-title-block{flex:1;text-align:center;}
+.signbook .sb-year-prog{font-size:12px;font-weight:700;margin-bottom:2px;}
+.signbook .sb-title{font-size:17px;font-weight:700;letter-spacing:2px;margin-bottom:2px;}
+.signbook .sb-info{font-size:10px;margin:2px 0;}
+.signbook .sb-info-section{margin-bottom:7px;border-top:1px solid #000;border-bottom:1px solid #ccc;padding:4px 0;}
+.signbook .sb-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;}
+.signbook .sb-table th,.signbook .sb-table td{border:1px solid #000;padding:2px 3px;text-align:center;vertical-align:middle;}
+.signbook .sb-table th{background:#d8e8d8;font-weight:700;font-size:11px;padding:5px 3px;}
+.signbook .sb-table td.sb-sig-cell{padding:1px;height:auto;min-height:24px;cursor:pointer;overflow:hidden;position:relative;}
+.signbook .sb-table td.sb-sig-cell:hover{background:#fffbeb;}
+.signbook .sb-table td.sb-sig-cell img{max-height:20px;max-width:100%;display:block;margin:0 auto;}
+.signbook .sb-table td.sb-sig-cell .sig-ph{color:#bbb;font-size:9px;font-style:italic;line-height:24px;}
+/* 서명된 행 이름 진하게 */
+.signbook .sb-table tr.signed-row td{font-weight:900;color:#000;}
+.signbook .sb-org-footer{text-align:right;font-size:14px;font-weight:900;color:#000;margin-top:7px;letter-spacing:.03em;}
+
+/* ── 직업·나라콩 ── */
+.job-panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;height:100%;overflow:hidden;}
+.job-panel-col{display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--border);background:#fff;}
+.job-panel-col-header{
+  background:linear-gradient(to bottom,var(--or3),#f5d5b0);
+  border-bottom:1px solid #d4a060;
+  padding:4px 10px;font-size:11px;font-weight:700;color:#7a3800;
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.job-panel-col-body{flex:1;overflow-y:auto;padding:6px 8px;}
+.job-card{border:1px solid var(--border);border-left:3px solid var(--or1);padding:6px 10px;margin-bottom:5px;background:#fff;display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .1s;}
+.job-card:hover{background:var(--or4);}
+.job-card.selected{background:var(--or4);border-left-color:#c45e00;}
+.job-name{font-size:12px;font-weight:700;color:var(--gray6);flex:1;}
+.job-wage{font-size:11px;color:var(--or1);font-weight:700;white-space:nowrap;}
+.job-count{font-size:10px;color:var(--gray3);white-space:nowrap;}
+/* 나라콩 보유 테이블 */
+.bean-table{width:100%;border-collapse:collapse;font-size:11px;}
+.bean-table th{background:linear-gradient(to bottom,#e8e4dc,#d4d0c8);border-bottom:2px solid var(--or1);border-right:1px solid var(--border);padding:5px 6px;text-align:center;font-weight:700;color:var(--gray5);white-space:nowrap;position:sticky;top:0;z-index:2;}
+.bean-table td{border-right:1px solid #e8e8e8;border-bottom:1px solid #ededea;padding:5px 6px;color:var(--gray6);vertical-align:middle;}
+.bean-table tr:hover td{background:var(--row-hover);}
+.bean-table tr.selected td{background:var(--row-sel)!important;}
+.bean-val{font-size:13px;font-weight:700;color:var(--or1);}
+.bean-job-badge{display:inline-block;padding:1px 6px;background:var(--or4);border:1px solid #e0b870;font-size:10px;border-radius:2px;color:#7a3800;}
+/* 거래내역 */
+.tx-list{font-size:11px;}
+.tx-item{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--gray1);}
+.tx-item:last-child{border-bottom:none;}
+.tx-date{color:var(--gray3);white-space:nowrap;width:48px;flex-shrink:0;}
+.tx-desc{flex:1;color:#000;font-weight:600;}
+.tx-amount{font-weight:700;white-space:nowrap;}
+.tx-amount.plus{color:var(--green);}
+.tx-amount.minus{color:var(--danger);}
+/* 나라콩 상세패널 탭 */
+.dtab-bean{color:#7a3800;}
+.gtab{
+  padding:4px 12px;border:1px solid var(--border-d);
+  background:linear-gradient(to bottom,#f8f8f8,#e4e4e4);
+  font-size:11px;font-weight:700;cursor:pointer;
+  border-bottom:none;border-radius:3px 3px 0 0;
+  color:var(--gray4);font-family:inherit;
+}
+.gtab:hover{background:var(--or4);}
+.gtab.active{background:#fff;color:var(--or1);border-bottom:1px solid #fff;position:relative;z-index:1;}
+.gtab.all{color:var(--blue);}
+.gtab.all.active{color:var(--blue);}
+.group-tab-line{height:2px;background:var(--or1);margin-bottom:0;}
+
+/* ── STATUS ── */
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;}
+.status-on{background:#1a9a40;}
+.status-pause{background:#e89020;}
+.status-out{background:#cc2200;}
+
+/* ── MODAL ── */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+.modal.show{display:flex;}
+.modal-win{
+  background:#f0f0f0;border:2px solid var(--border-d);
+  border-radius:2px;width:100%;max-width:580px;
+  position:relative;margin:auto;
+  box-shadow:4px 4px 16px rgba(0,0,0,.3);
+}
+.modal-win.sm{max-width:420px;}
+.modal-win.lg{max-width:700px;}
+.modal-titlebar{
+  background:linear-gradient(to bottom,var(--or2),var(--or1));
+  padding:4px 10px;display:flex;align-items:center;justify-content:space-between;
+}
+.modal-titlebar span{font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);}
+.modal-close-x{
+  background:none;border:none;color:rgba(255,255,255,.8);
+  font-size:16px;cursor:pointer;line-height:1;padding:0 2px;
+}
+.modal-close-x:hover{color:#fff;}
+.modal-body{padding:14px 16px;}
+.modal-footer{padding:8px 16px;background:var(--gray0);border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:6px;}
+.mf-field{margin-bottom:10px;}
+.mf-field label{display:block;font-size:11px;font-weight:700;color:var(--gray4);margin-bottom:3px;}
+.mf-field input,.mf-field select,.mf-field textarea{
+  width:100%;padding:4px 6px;border:1px solid var(--border-d);
+  font-size:11px;font-family:inherit;background:#fff;outline:none;
+}
+.mf-field input:focus,.mf-field select:focus,.mf-field textarea:focus{border-color:var(--or1);background:#fff8f0;}
+.mf-field textarea{resize:vertical;min-height:60px;}
+.mf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;}
+.mf-full{grid-column:1/-1;}
+
+/* 서명패드 */
+.sign-info-box{background:var(--green-l);border:1px solid #a0d0b0;padding:6px 10px;font-size:11px;color:var(--green);margin-bottom:8px;}
+.sign-canvas-wrap{border:2px dashed var(--or1);background:#fff;position:relative;touch-action:none;margin-bottom:8px;}
+.sign-canvas{display:block;width:100%;height:120px;cursor:crosshair;touch-action:none;}
+.sign-canvas-wrap::before{content:'✍️  여기에 서명해주세요';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ddd;font-size:13px;pointer-events:none;transition:opacity .2s;}
+.sign-canvas-wrap.has-drawing::before{opacity:0;}
+.sign-save-opt{background:var(--or4);border:1px solid #e0b870;padding:5px 8px;font-size:11px;color:#7a4800;margin-bottom:8px;display:none;}
+
+/* 태블릿 서명 모드 */
+.tablet-mode{position:fixed;inset:0;background:var(--gray0);z-index:150;padding:16px;overflow-y:auto;display:none;}
+.tablet-mode.show{display:block;}
+.tm-header{background:linear-gradient(to bottom,var(--or2),var(--or1));color:#fff;padding:14px 20px;margin-bottom:14px;border-radius:2px;}
+.tm-header h2{font-size:18px;margin:0 0 3px;}
+.tm-sub{font-size:12px;opacity:.85;}
+.tm-close-btn{position:absolute;top:22px;right:22px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);padding:4px 10px;cursor:pointer;font-size:11px;font-family:inherit;}
+.tablet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;max-width:900px;margin:0 auto;}
+.tablet-card{background:#fff;border:2px solid var(--border);padding:12px;cursor:pointer;transition:all .12s;text-align:left;font-family:inherit;width:100%;}
+.tablet-card:hover{border-color:var(--or1);}
+.tablet-card.signed{background:var(--green-l);border-color:var(--green);}
+.tc-name{font-size:15px;font-weight:700;color:var(--gray6);margin-bottom:2px;}
+.tc-meta{font-size:10px;color:var(--gray3);}
+.tc-status{margin-top:6px;font-size:10px;font-weight:700;}
+.tablet-card.signed .tc-status{color:var(--green);}
+.tablet-card:not(.signed) .tc-status{color:var(--or1);}
+.tablet-summary{text-align:center;margin-bottom:10px;font-size:13px;color:var(--or1);font-weight:700;}
+
+/* ── BTN ── */
+.btn{
+  padding:3px 10px;border:1px solid var(--border-d);
+  background:linear-gradient(to bottom,#fafafa,#e8e8e8);
+  font-size:11px;font-family:inherit;cursor:pointer;border-radius:1px;
+}
+.btn:hover{background:linear-gradient(to bottom,#fff,#f0f0f0);}
+.btn-or{background:linear-gradient(to bottom,var(--or2),var(--or1));color:#fff;border-color:#c45e00;}
+.btn-or:hover{background:linear-gradient(to bottom,#f5a94a,var(--or2));}
+.btn-danger{color:var(--danger);border-color:#f09090;}
+.btn-danger:hover{background:var(--danger-l);}
+.btn-sm{padding:2px 7px;font-size:10px;}
+.btn-xs{padding:1px 5px;font-size:10px;}
+
+/* 통계 */
+.stat-block{background:#fff;border:1px solid var(--border);padding:10px 12px;margin-bottom:8px;}
+.stat-block h4{font-size:11px;font-weight:700;color:var(--or1);margin-bottom:8px;border-bottom:1px solid var(--or3);padding-bottom:4px;}
+.sbar-item{display:flex;align-items:center;gap:6px;font-size:11px;margin-bottom:4px;}
+.sbar-label{width:68px;color:var(--gray5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sbar{flex:1;height:8px;background:var(--gray1);border-radius:1px;overflow:hidden;}
+.sbar-fill{height:100%;background:var(--or1);transition:width .4s;}
+.sbar-val{width:24px;text-align:right;color:var(--or1);font-weight:700;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+
+/* 대시보드 카드 */
+.dash-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px;}
+.dash-card{background:#fff;border:1px solid var(--border);padding:8px 10px;}
+.dash-card.primary{background:linear-gradient(135deg,var(--or2),var(--or1));border-color:#c45e00;}
+.dc-label{font-size:10px;color:var(--gray3);margin-bottom:3px;}
+.dash-card.primary .dc-label{color:rgba(255,255,255,.75);}
+.dc-val{font-size:22px;font-weight:700;color:var(--gray6);}
+.dash-card.primary .dc-val{color:#fff;}
+.dc-sub{font-size:10px;color:var(--gray3);margin-top:2px;}
+.dash-card.primary .dc-sub{color:rgba(255,255,255,.6);}
+.dash-widget{background:#fff;border:1px solid var(--border);padding:8px 10px;margin-bottom:6px;}
+.dw-title{font-size:11px;font-weight:700;color:var(--or1);margin-bottom:6px;border-bottom:1px solid var(--or3);padding-bottom:3px;}
+.dw-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--gray0);font-size:11px;}
+.dw-row:last-child{border-bottom:none;}
+
+/* 인사카드 인쇄용 */
+.card-print{background:#fff;}
+.cph-bar{background:linear-gradient(120deg,#1a5a35,#1a7a55);padding:14px 20px 10px;color:#fff;position:relative;overflow:hidden;}
+.cph-bar::after{content:'';position:absolute;right:-20px;top:-20px;width:100px;height:100px;background:rgba(255,255,255,.07);border-radius:50%;}
+.cph-org{font-size:9px;opacity:.7;letter-spacing:.05em;margin-bottom:2px;}
+.cph-title{font-size:16px;font-weight:700;letter-spacing:5px;}
+.cph-sub{font-size:10px;opacity:.6;margin-top:1px;}
+.cph-badge{display:inline-block;background:rgba(255,255,255,.18);font-size:10px;padding:1px 8px;border-radius:10px;margin-top:6px;}
+.cpb-body{display:flex;gap:14px;padding:14px 20px;}
+.cp-photo{width:78px;height:100px;border-radius:2px;border:1px solid var(--border);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--gray2);background:var(--gray0);}
+.cp-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.cp-info{flex:1;}
+.cp-name{font-size:20px;font-weight:700;color:#1a5a35;letter-spacing:1px;margin-bottom:2px;}
+.cp-name-en{font-size:10px;color:var(--gray3);margin-bottom:8px;}
+.cp-table{width:100%;border-collapse:collapse;font-size:11px;}
+.cp-table th{background:var(--gray0);color:var(--gray4);font-weight:700;padding:4px 6px;border:1px solid var(--border);width:60px;text-align:center;white-space:nowrap;}
+.cp-table td{padding:4px 6px;border:1px solid var(--border);color:var(--gray6);background:#fff;}
+.cp-divider{height:1px;background:var(--gray1);margin:0 20px;}
+.cp-dream{padding:8px 20px;background:var(--gray0);}
+.cp-dream-label{font-size:9px;color:#1a5a35;font-weight:700;letter-spacing:.06em;margin-bottom:3px;}
+.cp-dream-text{font-size:11px;color:var(--gray6);line-height:1.5;white-space:pre-wrap;}
+.cp-tags{padding:6px 20px 8px;display:flex;flex-wrap:wrap;gap:4px;}
+.cp-tag{padding:1px 7px;background:#e8f5ee;color:#1a5a35;font-size:10px;border-radius:1px;}
+.cp-footer{background:#1a5a35;padding:5px 20px;display:flex;justify-content:space-between;align-items:center;}
+.cp-footer-l{font-size:10px;color:rgba(255,255,255,.5);}
+.cp-footer-r{font-size:9px;color:rgba(255,255,255,.35);font-style:italic;}
+
+/* TOAST */
+.toast{position:fixed;bottom:16px;right:16px;background:var(--gray6);color:#fff;padding:8px 14px;border-radius:2px;font-size:11px;box-shadow:2px 2px 8px rgba(0,0,0,.3);z-index:400;opacity:0;transition:opacity .2s,transform .2s;transform:translateY(4px);max-width:280px;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.ok{background:var(--green);}
+.toast.error{background:var(--danger);}
+.toast.warn{background:#d97706;}
+
+/* 스크롤바 */
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:var(--gray1);}
+::-webkit-scrollbar-thumb{background:var(--gray2);border-radius:1px;}
+::-webkit-scrollbar-thumb:hover{background:var(--gray3);}
+
+/* 인쇄 */
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  body{background:#fff;overflow:auto;}
+  body *{visibility:hidden;}
+  .card-print,.card-print *,.signbook,.signbook *{visibility:visible;}
+  .card-print{position:fixed;left:0;top:0;width:100%;border:none;}
+  .signbook{
+    position:fixed;left:0;top:0;
+    width:100%;height:100%;
+    padding:8mm 10mm 6mm;
+    display:flex;flex-direction:column;
+    box-sizing:border-box;border:none;
+    overflow:hidden;
+  }
+  .signbook .sb-top-header{margin-bottom:4mm;}
+  .signbook .sb-logo-img{height:12mm;}
+  .signbook .sb-year-prog{font-size:9pt;}
+  .signbook .sb-title{font-size:13pt;}
+  .signbook .sb-info-section{margin-bottom:3mm;padding:2mm 0;}
+  .signbook .sb-info{font-size:8pt;}
+  .signbook .sb-table{
+    flex:1;font-size:9pt;table-layout:fixed;
+    /* 행 높이를 균등하게 나눔 */
+  }
+  .signbook .sb-table th{background:#d8e8d8!important;font-size:8pt;padding:1mm 1mm;border:.3mm solid #000;}
+  .signbook .sb-table td{border:.3mm solid #000;padding:0 1mm;font-size:9pt;}
+  .signbook .sb-table td.sb-sig-cell{height:auto;}
+  .signbook .sb-table td.sb-sig-cell img{max-height:6mm;}
+  .signbook .sb-table td.sb-sig-cell .sig-ph{display:none;}
+  .signbook .sb-org-footer{font-size:10pt;margin-top:2mm;}
+  .attend-bar,.attend-stat,#attendInfoBox,.modal-close-x,.print-btns,.tablet-mode{display:none!important;}
+  .modal{position:static;background:none;padding:0;display:block!important;}
+  .modal-win{box-shadow:none;border:none;max-width:100%;}
+  .modal-titlebar,.modal-footer{display:none!important;}
+  @page{size:A4 portrait;margin:0;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── 기관 코드(PIN) 입력 게이트 ── -->
+<div id="pinGate" style="position:fixed;inset:0;z-index:600;background:linear-gradient(135deg,#1a5a35,#0d3320);display:flex;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:6px;padding:32px 36px;width:280px;box-shadow:0 8px 30px rgba(0,0,0,.4);text-align:center;font-family:'Malgun Gothic',sans-serif;">
+    <div style="font-size:28px;margin-bottom:6px;">🔐</div>
+    <div style="font-size:14px;font-weight:700;color:#1a5a35;margin-bottom:4px;">청소년방과후아카데미</div>
+    <div style="font-size:11px;color:#888;margin-bottom:16px;">기관 코드를 입력해주세요</div>
+    <input type="password" id="pinInput" placeholder="코드 입력" autocomplete="off"
+      style="width:100%;padding:8px;border:1px solid #ccc;border-radius:3px;font-size:14px;text-align:center;letter-spacing:2px;margin-bottom:10px;box-sizing:border-box;"
+      onkeydown="if(event.key==='Enter')submitPin()">
+    <button style="width:100%;padding:8px;border:none;border-radius:3px;background:linear-gradient(to bottom,#f28c35,#e8720c);color:#fff;font-weight:700;font-size:13px;cursor:pointer;" onclick="submitPin()">입장하기</button>
+    <div id="pinError" style="color:#cc2200;font-size:11px;margin-top:8px;min-height:14px;"></div>
+  </div>
+</div>
+
+<!-- ── TITLE BAR ── -->
+<div class="title-bar">
+  <span class="app-name">방과후아카데미</span>
+  <span class="sep">|</span>
+  <span id="appSubTitle">광양시청소년문화센터</span>
+  <div class="menu-bar">
+    <button class="menu-btn" onclick="openSettings()">설정(S)</button>
+    <button class="menu-btn" onclick="downloadJsonBackup()">백업(B)</button>
+    <button class="menu-btn" onclick="document.getElementById('importFile').click()">불러오기(L)</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="menu-btn" onclick="if(confirm('로그아웃할까요? 다시 이용하려면 기관 코드를 입력해야 합니다.'))auth.signOut()">로그아웃</button>
+  </div>
+  <div class="title-bar-right">
+    <div id="updateBadge" class="title-save-badge" style="display:none;background:linear-gradient(to bottom,#4a9e4a,#2a7a2a);border-color:#1a5a1a;color:#fff;cursor:pointer;animation:updatePulse 1.5s infinite;" onclick="openUpdateModal()" title="새 버전이 있습니다">
+      <span>🆕</span> <span id="updateBadgeText">업데이트 있음</span>
+    </div>
+    <div id="sheetsBadge" class="title-save-badge linked" onclick="openSheetsSetup()" title="GitHub 자동 업데이트 설정">
+      <span id="sheetsIcon">🔥</span> <span id="sheetsText">Firebase 연동됨</span>
+    </div>
+    <div id="fsBadge" class="title-save-badge linked" onclick="openStoragePanel()">
+      <span id="fsIcon">✅</span> <span id="fsText">실시간 저장</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOOLBAR ── -->
+<div class="toolbar">
+  <div class="tb-group">
+    <button class="tb-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
+      <span class="tb-icon">🏠</span><span class="tb-label">대시보드</span>
+    </button>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="tb-group">
+    <button class="tb-btn" data-tab="list" onclick="switchTab('list')">
+      <span class="tb-icon">📋</span><span class="tb-label">청소년목록</span>
+    </button>
+    <button class="tb-btn" data-tab="add" onclick="switchTab('add');resetForm()">
+      <span class="tb-icon">➕</span><span class="tb-label">청소년등록</span>
+    </button>
+    <button class="tb-btn" data-tab="groups" onclick="switchTab('groups')">
+      <span class="tb-icon">🏷️</span><span class="tb-label">반 관리</span>
+    </button>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="tb-group">
+    <button class="tb-btn" data-tab="narakong" onclick="switchTab('narakong')">
+      <span class="tb-icon">💰</span><span class="tb-label">직업·나라콩</span>
+    </button>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="tb-group">
+    <button class="tb-btn" data-tab="schedule" onclick="switchTab('schedule')">
+      <span class="tb-icon">📅</span><span class="tb-label">일정관리</span>
+    </button>
+    <button class="tb-btn" data-tab="attend" onclick="switchTab('attend')">
+      <span class="tb-icon">✍️</span><span class="tb-label">서명부·출석</span>
+    </button>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="tb-group">
+    <button class="tb-btn" data-tab="stats" onclick="switchTab('stats')">
+      <span class="tb-icon">📊</span><span class="tb-label">통계·내보내기</span>
+    </button>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="tb-group">
+    <button class="tb-btn" onclick="openSettings()">
+      <span class="tb-icon">⚙️</span><span class="tb-label">설정</span>
+    </button>
+    <button class="tb-btn" onclick="downloadJsonBackup()">
+      <span class="tb-icon">📥</span><span class="tb-label">백업</span>
+    </button>
+  </div>
+</div>
+
+<!-- ── APP BODY ── -->
+<div class="app-body">
+
+  <!-- ===== 대시보드 ===== -->
+  <div id="view-dashboard" class="content-area" style="overflow-y:auto;padding:10px;">
+    <div id="dashboardContent"></div>
+  </div>
+
+  <!-- ===== 청소년 목록 ===== -->
+  <div id="view-list" class="main-split" style="display:none;">
+    <div class="left-nav">
+      <div class="lnav-btn" title="새 청소년 등록" onclick="switchTab('add');resetForm()">➕</div>
+      <div class="lnav-btn" title="선택 수정" onclick="editSelected()">✏️</div>
+      <div class="lnav-btn" title="인사카드 보기" onclick="viewSelectedCard()">🪪</div>
+      <div class="lnav-btn" title="선택 삭제" onclick="deleteSelected()">🗑</div>
+    </div>
+    <div class="content-area">
+      <!-- 필터바 -->
+      <div class="filter-bar">
+        <label>검색</label>
+        <input type="text" id="searchInput" placeholder="이름·학교 검색" oninput="renderList()">
+        <div class="filter-sep"></div>
+        <label>학년</label>
+        <select id="filterGrade" onchange="renderList()">
+          <option value="">전체</option>
+          <option>초등 3학년</option><option>초등 4학년</option>
+          <option>초등 5학년</option><option>초등 6학년</option>
+        </select>
+        <label>상태</label>
+        <select id="filterStatus" onchange="renderList()">
+          <option value="">전체</option>
+          <option>활동중</option><option>휴원</option><option>퇴원</option>
+        </select>
+        <div class="filter-sep"></div>
+        <button class="filter-btn" onclick="renderList()">🔍 조회</button>
+        <button class="filter-btn primary" onclick="switchTab('add');resetForm()">➕ 신규 등록</button>
+        <span style="margin-left:auto;font-size:10px;color:var(--gray3)" id="listCountLabel"></span>
+      </div>
+      <!-- 반 탭 -->
+      <div style="background:linear-gradient(to bottom,#e8e8e8,#d8d8d8);padding:6px 8px 0;border-bottom:2px solid var(--or1);">
+        <div class="group-tabs" id="listGroupTabs"></div>
+      </div>
+      <!-- 그리드 -->
+      <div class="grid-wrap" id="listGridWrap">
+        <table class="grid-table" id="listGrid">
+          <thead><tr>
+            <th class="col-no">No.</th>
+            <th class="col-photo">사진</th>
+            <th class="col-name">이름</th>
+            <th class="col-school">학교</th>
+            <th class="col-grade">학년</th>
+            <th class="col-gender">성별</th>
+            <th class="col-birth">생년월일</th>
+            <th class="col-phone">연락처</th>
+            <th class="col-guardian">보호자</th>
+            <th class="col-group">반/그룹</th>
+            <th class="col-status">상태</th>
+            <th class="col-year">연도</th>
+            <th class="col-date">입회일</th>
+            <th class="col-sign">대표서명</th>
+            <th class="col-job">직업</th>
+            <th class="col-bean">나라콩💰</th>
+            <th class="col-actions">관리</th>
+          </tr></thead>
+          <tbody id="listGridBody"></tbody>
+        </table>
+      </div>
+      <!-- 하단 상세 패널 -->
+      <div class="detail-panel" id="detailPanel">
+        <div class="detail-tabs">
+          <div class="dtab active" data-dt="basic" onclick="switchDetailTab('basic')">기본정보</div>
+          <div class="dtab" data-dt="guardian" onclick="switchDetailTab('guardian')">보호자</div>
+          <div class="dtab" data-dt="intro" onclick="switchDetailTab('intro')">자기소개</div>
+          <div class="dtab" data-dt="memo" onclick="switchDetailTab('memo')">지도사메모</div>
+          <div class="dtab dtab-bean" data-dt="bean" onclick="switchDetailTab('bean')">💰 나라콩</div>
+        </div>
+        <div class="detail-content" id="detailContent">
+          <div class="detail-section active" id="dt-basic">
+            <div style="color:var(--gray3);font-size:11px;padding:16px 0;text-align:center">목록에서 청소년을 선택하면 상세 정보가 표시됩니다.</div>
+          </div>
+          <div class="detail-section" id="dt-guardian"></div>
+          <div class="detail-section" id="dt-intro"></div>
+          <div class="detail-section" id="dt-memo"></div>
+          <div class="detail-section" id="dt-bean"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 청소년 등록/수정 ===== -->
+  <div id="view-add" class="main-split" style="display:none;">
+    <div class="left-nav">
+      <div class="lnav-btn" title="목록으로" onclick="switchTab('list')">◀</div>
+    </div>
+    <div class="form-panel" id="formPanel">
+      <form id="memberForm" onsubmit="saveMember(event)">
+        <input type="hidden" id="memberId">
+        <input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="onPhotoSelected(event)">
+
+        <div class="fp-section">
+          <div class="fp-header">🖼 증명사진 · 기본 인적사항</div>
+          <div class="fp-body">
+            <div class="fp-photo-row">
+              <div style="position:relative;">
+                <div class="fp-photo-box" id="photoPreview" onclick="document.getElementById('photoFileInput').click()">
+                  <span style="font-size:20px;opacity:.4">📷</span>
+                  <span>클릭하여<br>사진 추가</span>
+                </div>
+                <button type="button" style="position:absolute;top:-6px;right:-6px;width:16px;height:16px;background:var(--danger);color:#fff;border:none;border-radius:50%;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;" id="photoDelBtn" onclick="removePhoto()">×</button>
+              </div>
+              <div style="flex:1">
+                <div class="fp-grid" style="margin-bottom:5px">
+                  <div class="fp-field"><label>이름(한글)<span class="req">*</span></label><input type="text" id="name" required placeholder="김광양"></div>
+                  <div class="fp-field"><label>이름(영문)</label><input type="text" id="nameEn" placeholder="Kim Gwangyang"></div>
+                  <div class="fp-field"><label>성별</label><select id="gender"><option value="">선택</option><option>남</option><option>여</option></select></div>
+                  <div class="fp-field"><label>생년월일</label><input type="date" id="birthdate"></div>
+                </div>
+                <div class="fp-grid">
+                  <div class="fp-field"><label>본인 연락처</label><input type="tel" id="phone" placeholder="010-0000-0000"></div>
+                  <div class="fp-field fp-full" style="grid-column:2/-1"><label>주소</label><input type="text" id="address" placeholder="전라남도 광양시 ..."></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fp-section">
+          <div class="fp-header">🏫 학교 · 아카데미 정보</div>
+          <div class="fp-body">
+            <div class="fp-grid">
+              <div class="fp-field"><label>학교명</label><input type="text" id="school" placeholder="광양초등학교"></div>
+              <div class="fp-field"><label>학년</label>
+                <select id="grade"><option value="">선택</option><option>초등 3학년</option><option>초등 4학년</option><option>초등 5학년</option><option>초등 6학년</option></select>
+              </div>
+              <div class="fp-field"><label>반/그룹</label><input type="text" id="groupName" placeholder="꿈나무반, A반 등"></div>
+              <div class="fp-field"><label>활동 연도</label>
+                <select id="activeYear"><option>2023</option><option>2024</option><option selected>2025</option><option>2026</option></select>
+              </div>
+              <div class="fp-field"><label>입회일</label><input type="date" id="joinDate"></div>
+              <div class="fp-field"><label>활동 상태</label>
+                <select id="status"><option>활동중</option><option>휴원</option><option>퇴원</option></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fp-section">
+          <div class="fp-header">👨‍👩‍👧 보호자 정보</div>
+          <div class="fp-body">
+            <div class="fp-grid">
+              <div class="fp-field"><label>보호자 성명</label><input type="text" id="guardianName"></div>
+              <div class="fp-field"><label>관계</label><input type="text" id="guardianRel" placeholder="부/모/조부모"></div>
+              <div class="fp-field"><label>보호자 연락처</label><input type="tel" id="guardianPhone"></div>
+              <div class="fp-field"><label>비상 연락망</label><input type="tel" id="emergencyPhone"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fp-section">
+          <div class="fp-header">✨ 자기소개 (인사카드용)</div>
+          <div class="fp-body">
+            <div class="fp-grid cols2" style="margin-bottom:6px">
+              <div class="fp-field fp-full"><label>나의 꿈 / 장래 희망</label><input type="text" id="dream" placeholder="우주를 탐험하는 과학자"></div>
+              <div class="fp-field fp-full"><label>나의 좌우명 / 한마디</label><input type="text" id="motto" placeholder="하루하루 최선을 다하자!"></div>
+              <div class="fp-field fp-full"><label>올해 나의 목표</label><textarea id="goalText" rows="2" placeholder="책을 한 달에 한 권 읽기, 수영 배우기 등 자유롭게 써보세요."></textarea></div>
+            </div>
+            <div class="fp-field">
+              <label>관심 분야 (복수 선택)</label>
+              <div class="tag-wrap" id="interestTagsEdit">
+                <span class="etag" onclick="toggleEtag(this)">📚 독서</span>
+                <span class="etag" onclick="toggleEtag(this)">⚽ 스포츠</span>
+                <span class="etag" onclick="toggleEtag(this)">🎵 음악</span>
+                <span class="etag" onclick="toggleEtag(this)">🎨 미술·공예</span>
+                <span class="etag" onclick="toggleEtag(this)">🍳 요리·베이킹</span>
+                <span class="etag" onclick="toggleEtag(this)">🔬 과학·실험</span>
+                <span class="etag" onclick="toggleEtag(this)">💻 코딩·AI</span>
+                <span class="etag" onclick="toggleEtag(this)">💃 댄스</span>
+                <span class="etag" onclick="toggleEtag(this)">🎭 영화·드라마</span>
+                <span class="etag" onclick="toggleEtag(this)">🌱 환경·자연</span>
+                <span class="etag" onclick="toggleEtag(this)">🤝 봉사·나눔</span>
+                <span class="etag" onclick="toggleEtag(this)">✈️ 여행·탐험</span>
+                <span class="etag" onclick="toggleEtag(this)">📸 사진·영상</span>
+                <span class="etag" onclick="toggleEtag(this)">🐾 동물·식물</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fp-section">
+          <div class="fp-header">📝 지도사 기록 (내부용 — 인사카드 출력 안 됨)</div>
+          <div class="fp-body">
+            <div class="fp-grid cols2">
+              <div class="fp-field"><label>특이사항 / 상담 기록</label><textarea id="advisorNote" rows="3" placeholder="알레르기, 건강, 상담 메모 등"></textarea></div>
+              <div class="fp-field"><label>수상 경력 / 활동 내역</label><textarea id="history" rows="3" placeholder="2025년 청소년어울림마당 참가 등"></textarea></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:6px;justify-content:flex-end;padding:6px 0 20px;">
+          <button type="button" class="btn" onclick="resetForm();switchTab('list')">취소</button>
+          <button type="submit" class="btn btn-or">💾 저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== 반 관리 ===== -->
+  <div id="view-groups" class="content-area" style="display:none;overflow-y:auto;padding:10px;">
+    <div style="display:flex;gap:6px;margin-bottom:10px;">
+      <button class="btn btn-or" onclick="openGroupForm()">➕ 새 반 추가</button>
+      <span style="font-size:11px;color:var(--gray3);align-self:center">반을 만들고 청소년을 배정하세요. 서명부에서 반별로 서명받을 수 있습니다.</span>
+    </div>
+    <div id="groupsContent"></div>
+  </div>
+
+  <!-- ===== 일정 관리 ===== -->
+  <div id="view-schedule" class="main-split" style="display:none;flex-direction:column;">
+    <div class="filter-bar">
+      <label>기간</label>
+      <select id="scheduleFilter" onchange="renderSchedule()" style="height:20px;padding:0 5px;border:1px solid var(--border-d);font-size:11px;font-family:inherit;background:#fff;outline:none;">
+        <option value="upcoming">다가오는 일정</option>
+        <option value="past">지난 일정</option>
+        <option value="all">전체</option>
+        <option value="month">이번 달</option>
+      </select>
+      <div class="filter-sep"></div>
+      <button class="filter-btn primary" onclick="openScheduleForm()">➕ 새 일정 등록</button>
+      <span style="margin-left:auto;font-size:10px;color:var(--gray3)" id="scheduleSummary"></span>
+    </div>
+    <div class="sch-grid-wrap">
+      <table class="grid-table">
+        <thead><tr>
+          <th style="width:36px">No.</th>
+          <th style="width:80px">날짜</th>
+          <th style="width:80px">시간</th>
+          <th style="width:180px">활동 제목</th>
+          <th style="width:140px">장소</th>
+          <th style="width:60px">서명수</th>
+          <th style="width:60px">출석수</th>
+          <th style="width:60px">상태</th>
+          <th style="width:100px">관리</th>
+        </tr></thead>
+        <tbody id="schGridBody"></tbody>
+      </table>
+    </div>
+    <div class="sch-detail" id="schDetail">
+      <div style="color:var(--gray3);font-size:11px;text-align:center;padding:20px 0">일정을 선택하면 상세 내용이 표시됩니다.</div>
+    </div>
+  </div>
+
+  <!-- ===== 서명부·출석 ===== -->
+  <div id="view-attend" class="main-split" style="display:none;flex-direction:column;">
+    <div class="attend-bar">
+      <label>활동일</label>
+      <input type="date" id="attendDate" onchange="onAttendDateChange()">
+      <label style="margin-left:6px">일정</label>
+      <select id="attendSchedule" onchange="onAttendScheduleChange()">
+        <option value="">— 일정 없음 —</option>
+      </select>
+      <div class="filter-sep" style="background:#b0c8a0;"></div>
+      <label>활동 유형</label>
+      <select id="attendActType" onchange="renderSignbookFromUI()">
+        <option value="특별지원프로그램">특별지원프로그램</option>
+        <option value="토요체험활동">토요체험활동</option>
+        <option value="방과후아카데미">방과후아카데미</option>
+        <option value="생활지원">생활지원</option>
+        <option value="학습지원">학습지원</option>
+        <option value="전문체험활동">전문체험활동</option>
+        <option value="집단상담">집단상담</option>
+        <option value="개인상담">개인상담</option>
+        <option value="기타">기타</option>
+      </select>
+      <label style="margin-left:4px">행사명</label>
+      <input type="text" id="attendActName" placeholder="나라찬 집단상담" style="height:20px;padding:0 5px;border:1px solid #b0c8a0;font-size:11px;font-family:inherit;background:#fff;width:130px;outline:none;" oninput="renderSignbookFromUI()">
+      <div class="filter-sep" style="background:#b0c8a0;"></div>
+      <label>반</label>
+      <select id="attendGroup" onchange="renderSignbookFromUI()">
+        <option value="">전체 (활동중)</option>
+      </select>
+      <div style="margin-left:6px;display:flex;gap:4px;">
+        <button class="filter-btn" onclick="openTabletMode()">👥 학생서명모드</button>
+        <button class="filter-btn" onclick="clearAllSignatures()">🗑 서명 초기화</button>
+        <button class="filter-btn primary" onclick="window.print()">🖨 서명부 인쇄</button>
+      </div>
+    </div>
+    <div class="attend-stat" id="attendStat"><span>활동일과 반을 선택해주세요.</span></div>
+    <div style="flex:1;overflow:auto;" id="signbookContainer"></div>
+  </div>
+
+  <!-- ===== 통계·내보내기 ===== -->
+  <div id="view-stats" class="content-area" style="display:none;overflow-y:auto;padding:10px;">
+    <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;">
+      <button class="btn btn-or" onclick="exportMembersCSV()">📊 청소년 명단 CSV</button>
+      <button class="btn" onclick="downloadJsonBackup()">📥 JSON 백업 다운로드</button>
+      <button class="btn" onclick="openStoragePanel()">💾 저장소 관리</button>
+    </div>
+    <div id="statsContent"></div>
+  </div>
+
+  <!-- ===== 직업·나라콩 ===== -->
+  <div id="view-narakong" class="content-area" style="display:none;overflow:hidden;padding:0;">
+    <div class="filter-bar" style="height:36px;">
+      <button class="filter-btn primary" onclick="openJobForm()">➕ 직업 추가</button>
+      <div class="filter-sep"></div>
+      <button class="filter-btn primary" style="background:linear-gradient(to bottom,#4a9e4a,#2a7a2a);border-color:#1a5a1a;" onclick="openPayWageModal()">💰 월급 일괄 지급</button>
+      <div class="filter-sep"></div>
+      <button class="filter-btn" onclick="openBeanTxForm()">± 개별 지급/차감</button>
+      <div class="filter-sep"></div>
+      <button class="filter-btn btn-danger" style="color:var(--danger);border-color:#f09090;" onclick="confirmResetAllBean()">🗑 전체 나라콩 초기화</button>
+      <span style="margin-left:auto;font-size:10px;color:var(--gray3)" id="narakongSummary"></span>
+    </div>
+    <div style="display:grid;grid-template-columns:260px 1fr;gap:0;height:calc(100% - 36px);overflow:hidden;">
+      <!-- 직업 목록 -->
+      <div style="display:flex;flex-direction:column;border-right:2px solid var(--or1);overflow:hidden;">
+        <div class="job-panel-col-header">
+          <span>🏷 직업 목록</span>
+          <button class="btn btn-xs" onclick="openJobForm()">+ 추가</button>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:6px;" id="jobListPanel"></div>
+      </div>
+      <!-- 나라콩 보유 현황 -->
+      <div style="display:flex;flex-direction:column;overflow:hidden;">
+        <div class="job-panel-col-header">
+          <span>💰 나라콩 보유 현황</span>
+          <span id="beanTotalLabel" style="font-size:10px;color:#7a3800;"></span>
+        </div>
+        <div style="flex:1;overflow-y:auto;" id="beanListPanel"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-body -->
+
+<!-- ===== 인사카드 모달 ===== -->
+<div class="modal" id="cardModal">
+  <div class="modal-win lg">
+    <div class="modal-titlebar"><span>🪪 인사카드</span><button class="modal-close-x" onclick="closeModal('cardModal')">✕</button></div>
+    <div class="modal-body" style="padding:0;" id="cardContent"></div>
+    <div class="modal-footer print-btns">
+      <button class="btn" onclick="closeModal('cardModal')">닫기</button>
+      <button class="btn btn-or" onclick="window.print()">🖨 인쇄</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 일정 등록 모달 ===== -->
+<div class="modal" id="scheduleModal">
+  <div class="modal-win">
+    <div class="modal-titlebar"><span id="scheduleModalTitle">📅 새 일정 등록</span><button class="modal-close-x" onclick="closeModal('scheduleModal')">✕</button></div>
+    <div class="modal-body">
+      <form id="scheduleForm" onsubmit="saveSchedule(event)">
+        <input type="hidden" id="schId">
+        <div class="mf-grid">
+          <div class="mf-field mf-full"><label>활동 제목 *</label><input type="text" id="schTitle" required placeholder="제1회 청소년어울림마당"></div>
+          <div class="mf-field"><label>날짜 *</label><input type="date" id="schDate" required></div>
+          <div class="mf-field"><label>시간</label><input type="text" id="schTime" placeholder="14:00~17:00"></div>
+          <div class="mf-field mf-full"><label>장소</label><input type="text" id="schLocation" placeholder="광양시청소년문화센터"></div>
+          <div class="mf-field mf-full"><label>활동 내용</label><textarea id="schContent" rows="3" placeholder="활동 목표, 진행 순서 등"></textarea></div>
+          <div class="mf-field mf-full"><label>준비물 / 참고사항</label><textarea id="schNote" rows="2" placeholder="필기구, 간식 등"></textarea></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('scheduleModal')">취소</button>
+      <button class="btn btn-or" onclick="document.getElementById('scheduleForm').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}))">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 반 등록/수정 모달 ===== -->
+<div class="modal" id="groupModal">
+  <div class="modal-win sm">
+    <div class="modal-titlebar"><span id="groupModalTitle">🏷️ 새 반 추가</span><button class="modal-close-x" onclick="closeModal('groupModal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="groupId">
+      <div class="mf-field"><label>반 이름 *</label><input type="text" id="groupNameInput" placeholder="예: 별하반, 늘봄반, 새벽반"></div>
+      <div class="mf-field"><label>설명</label><input type="text" id="groupDesc" placeholder="예: 5학년 중심 / 화목반 등"></div>
+      <div class="mf-field">
+        <label>반 구성원 선택 (클릭으로 추가/제거)</label>
+        <div id="groupMemberPicker" style="max-height:220px;overflow-y:auto;border:1px solid var(--border);padding:4px;background:#fff;margin-top:3px;display:flex;flex-wrap:wrap;gap:3px;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('groupModal')">취소</button>
+      <button class="btn btn-or" onclick="saveGroup()">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 서명 패드 모달 ===== -->
+<div class="modal" id="signPadModal">
+  <div class="modal-win sm">
+    <div class="modal-titlebar"><span>✍️ 서명</span><button class="modal-close-x" onclick="closeSignPad()">✕</button></div>
+    <div class="modal-body">
+      <div class="sign-info-box"><strong id="signPadName"></strong> 님, 아래 공간에 서명해주세요.</div>
+      <div class="sign-save-opt" id="signSaveDefaultWrap">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:700">
+          <input type="checkbox" id="signSaveDefault"> 대표 서명으로 저장 (다음 서명부에 자동 채워짐)
+        </label>
+      </div>
+      <div class="sign-canvas-wrap" id="signCanvasWrap">
+        <canvas class="sign-canvas" id="signCanvas"></canvas>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <button class="btn btn-sm" onclick="clearSignCanvas()">🔄 다시 서명</button>
+        <div style="display:flex;gap:6px;">
+          <button class="btn" onclick="closeSignPad()">취소</button>
+          <button class="btn btn-or" onclick="saveSignature()">💾 저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 설정 모달 ===== -->
+<div class="modal" id="settingsModal">
+  <div class="modal-win sm">
+    <div class="modal-titlebar"><span>⚙️ 기관 정보 설정</span><button class="modal-close-x" onclick="closeModal('settingsModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="mf-field"><label>기관명</label><input type="text" id="setOrgName" placeholder="광양시청소년문화센터"></div>
+      <div class="mf-field"><label>사업명</label><input type="text" id="setProgramName" placeholder="청소년방과후아카데미"></div>
+      <div class="mf-field"><label>담당 지도사</label><input type="text" id="setAdvisorName" placeholder="홍길동 지도사"></div>
+      <div class="mf-field"><label>운영 연도</label>
+        <select id="setYear"><option>2023</option><option>2024</option><option selected>2025</option><option>2026</option></select>
+      </div>
+      <div style="background:#e8f5ee;border:1px solid #a0d0b0;padding:6px 10px;font-size:11px;color:#1a5a35;">💡 설정한 정보는 인사카드와 서명부에 자동으로 반영됩니다.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('settingsModal')">취소</button>
+      <button class="btn btn-or" onclick="saveSettings()">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 저장소/계정 모달 ===== -->
+<div class="modal" id="storageModal">
+  <div class="modal-win sm">
+    <div class="modal-titlebar"><span>☁️ 저장소 · 계정</span><button class="modal-close-x" onclick="closeModal('storageModal')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:var(--gray0);border:1px solid var(--border);padding:8px 10px;margin-bottom:10px;font-size:11px;">
+        <div style="font-size:10px;color:var(--gray3);margin-bottom:3px;">연결된 저장소</div>
+        <div style="font-weight:700;color:var(--gray6)" id="linkedFileName">Firebase (실시간 클라우드)</div>
+        <div style="font-size:10px;color:var(--gray3);margin-top:2px" id="linkedFileMeta"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
+        <button class="btn" onclick="openExistingFile()">📂 JSON 불러오기</button>
+        <button class="btn" onclick="downloadJsonBackup()">📥 JSON 백업</button>
+        <button class="btn" onclick="exportMembersCSV()">📊 CSV 내보내기</button>
+        <button class="btn" onclick="if(confirm('로그아웃할까요?'))auth.signOut()">🚪 로그아웃</button>
+      </div>
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+        <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑 전체 데이터 초기화</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('storageModal')">닫기</button></div>
+  </div>
+</div>
+
+<!-- ===== 태블릿 서명 모드 ===== -->
+<div class="tablet-mode" id="tabletMode">
+  <button class="tm-close-btn" onclick="closeTabletMode()">✕ 종료</button>
+  <div class="tm-header">
+    <h2 id="tmHeaderTitle">✍️ 서명부</h2>
+    <div class="tm-sub">이름 카드를 터치하여 서명해주세요</div>
+  </div>
+  <div class="tablet-summary" id="tabletSummary"></div>
+  <div class="tablet-grid" id="tabletList"></div>
+</div>
+
+<!-- ===== 직업 등록/수정 모달 ===== -->
+<div class="modal" id="jobModal">
+  <div class="modal-win sm">
+    <div class="modal-titlebar"><span id="jobModalTitle">🏷 직업 추가</span><button class="modal-close-x" onclick="closeModal('jobModal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="jobId">
+      <div class="mf-field"><label>직업 이름 *</label><input type="text" id="jobName" placeholder="예: 은행원, 소방관, 요리사"></div>
+      <div class="mf-field"><label>월급 (나라콩) *</label><input type="number" id="jobWage" placeholder="예: 100" min="0"></div>
+      <div class="mf-field"><label>직업 설명</label><input type="text" id="jobDesc" placeholder="예: 나라찬 은행 업무 담당"></div>
+      <div class="mf-field"><label>배정할 청소년 (복수 선택)</label>
+        <div id="jobMemberPicker" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);padding:4px;background:#fff;display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('jobModal')">취소</button>
+      <button class="btn btn-or" onclick="saveJob()">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 월급 일괄 지급 모달 ===== -->
+<div class="modal" id="payWageModal">
+  <div class="modal-win" style="max-width:540px;">
+    <div class="modal-titlebar"><span>💰 월급 일괄 지급</span><button class="modal-close-x" onclick="closeModal('payWageModal')">✕</button></div>
+    <div class="modal-body">
+      <!-- 메모 -->
+      <div class="mf-field" style="margin-bottom:12px;">
+        <label>지급 메모 (거래 내역에 기록)</label>
+        <input type="text" id="wagePayMemo" placeholder="예: 4월 월급" style="width:100%;padding:5px 7px;border:1px solid var(--border-d);font-size:12px;font-family:inherit;">
+      </div>
+      <!-- 직업별 지급 설정 테이블 -->
+      <div style="font-size:11px;font-weight:700;color:var(--gray4);margin-bottom:5px;">직업 선택 및 지급액 설정</div>
+      <div style="border:1px solid var(--border);border-radius:2px;overflow:hidden;margin-bottom:10px;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr style="background:linear-gradient(to bottom,#f0ece4,#ddd8cc);">
+              <th style="padding:6px 8px;border-bottom:2px solid var(--or1);border-right:1px solid var(--border);width:28px;text-align:center;">
+                <input type="checkbox" id="wageCheckAll" onchange="toggleAllWageJobs(this)" style="accent-color:var(--or1);">
+              </th>
+              <th style="padding:6px 8px;border-bottom:2px solid var(--or1);border-right:1px solid var(--border);text-align:left;font-weight:700;color:var(--gray5);">직업</th>
+              <th style="padding:6px 8px;border-bottom:2px solid var(--or1);border-right:1px solid var(--border);width:60px;text-align:center;font-weight:700;color:var(--gray5);">배정</th>
+              <th style="padding:6px 8px;border-bottom:2px solid var(--or1);border-right:1px solid var(--border);width:110px;text-align:center;font-weight:700;color:var(--gray5);">지급 나라콩💰</th>
+              <th style="padding:6px 8px;border-bottom:2px solid var(--or1);text-align:left;font-weight:700;color:var(--gray5);">배정 청소년</th>
+            </tr>
+          </thead>
+          <tbody id="wageJobRows"></tbody>
+        </table>
+      </div>
+      <!-- 세금 정보 -->
+      <div style="background:var(--danger-l);border:1px solid #f09090;border-radius:2px;padding:8px 12px;margin-bottom:8px;">
+        <div style="font-size:11px;font-weight:700;color:var(--danger);margin-bottom:5px;">💸 세금 자동 차감 안내</div>
+        <div style="font-size:10px;color:var(--gray5);line-height:1.8;">
+          총월급의 <strong>20%</strong> (소득세) + 자릿세 <strong>5💰</strong> + 전기세 <strong>4💰</strong> + 수도세 <strong>4💰</strong> + 건강보험료 <strong>2💰</strong>
+        </div>
+        <div style="font-size:10px;color:var(--gray4);margin-top:4px;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:700;">
+            <input type="checkbox" id="taxEnabled" checked onchange="calcWagePreview()" style="accent-color:var(--danger);">
+            월급 지급 시 세금도 함께 차감하기
+          </label>
+        </div>
+      </div>
+      <!-- 예상 합계 -->
+      <div style="background:var(--or4);border:1px solid #e0b870;border-radius:2px;padding:8px 12px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:11px;color:#7a3800;font-weight:700;">예상 지급 합계</span>
+          <span style="font-size:14px;font-weight:700;color:var(--or1);" id="wagePreviewTotal">0💰 (0명)</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;" id="taxPreviewRow">
+          <span style="font-size:11px;color:var(--danger);font-weight:700;">예상 세금 합계</span>
+          <span style="font-size:13px;font-weight:700;color:var(--danger);" id="taxPreviewTotal">-0💰</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;border-top:1px solid #e0b870;padding-top:4px;" id="netPreviewRow">
+          <span style="font-size:11px;color:#7a3800;font-weight:700;">실수령 합계</span>
+          <span style="font-size:13px;font-weight:700;color:var(--green);" id="netPreviewTotal">0💰</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('payWageModal')">취소</button>
+      <button class="btn" style="background:linear-gradient(to bottom,#4a9e4a,#2a7a2a);color:#fff;border-color:#1a5a1a;" onclick="execPayWages()">💰 지급 실행</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 나라콩 개별 지급/차감 모달 ===== -->
+<div class="modal" id="beanTxModal">
+  <div class="modal-win sm">
+    <div class="modal-titlebar"><span>💰 나라콩 지급 / 차감</span><button class="modal-close-x" onclick="closeModal('beanTxModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="mf-field"><label>대상 청소년</label>
+        <select id="txMemberId" style="width:100%;padding:4px 6px;border:1px solid var(--border-d);font-size:11px;font-family:inherit;">
+          <option value="">선택...</option>
+        </select>
+      </div>
+      <div class="mf-field"><label>종류</label>
+        <select id="txType" style="width:100%;padding:4px 6px;border:1px solid var(--border-d);font-size:11px;font-family:inherit;">
+          <option value="plus">+ 지급</option>
+          <option value="minus">- 차감</option>
+        </select>
+      </div>
+      <div class="mf-field"><label>나라콩 수량 *</label><input type="number" id="txAmount" placeholder="0" min="1"></div>
+      <div class="mf-field"><label>메모</label><input type="text" id="txMemo" placeholder="예: 우수 활동 보상, 벌금 등"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('beanTxModal')">취소</button>
+      <button class="btn btn-or" onclick="saveBeanTx()">💾 적용</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GitHub 자동 업데이트 설정 모달 ===== -->
+<div class="modal" id="sheetsSetupModal">
+  <div class="modal-win sm">
+    <div class="modal-titlebar"><span>⚙️ GitHub 자동 업데이트 설정</span><button class="modal-close-x" onclick="closeModal('sheetsSetupModal')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:#e8f0fb;border:1px solid #b0c8f0;padding:10px 12px;font-size:11px;color:#1a3a7a;margin-bottom:12px;line-height:1.8;">
+        📋 데이터는 Firebase에 실시간으로 저장됩니다.<br>
+        이 설정은 <strong>프로그램(코드) 자체의 새 버전</strong>을 GitHub에서 자동으로 확인하는 기능입니다.
+      </div>
+      <div class="mf-field" style="margin-bottom:8px;">
+        <label>GitHub 사용자명</label>
+        <input type="text" id="ghUserInput" placeholder="예: chc4380-alt"
+          style="width:100%;padding:4px 6px;border:1px solid var(--border-d);font-size:11px;font-family:inherit;">
+      </div>
+      <div class="mf-field" style="margin-bottom:8px;">
+        <label>GitHub 저장소명</label>
+        <input type="text" id="ghRepoInput" placeholder="예: narachan-card"
+          style="width:100%;padding:4px 6px;border:1px solid var(--border-d);font-size:11px;font-family:inherit;">
+      </div>
+      <button class="btn btn-sm" onclick="saveGhConfig()">GitHub 설정 저장</button>
+      <button class="btn btn-sm" onclick="checkForUpdates()" style="margin-left:4px">🔍 지금 업데이트 확인</button>
+      <div id="ghConfigStatus" style="margin-top:6px;font-size:10px;color:var(--gray4);"></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('sheetsSetupModal')">닫기</button></div>
+  </div>
+</div>
+
+<!-- ===== 업데이트 모달 ===== -->
+<div class="modal" id="updateModal">
+  <div class="modal-win sm">
+    <div class="modal-titlebar" style="background:linear-gradient(to bottom,#4a9e4a,#2a7a2a);"><span>🆕 새 버전 업데이트</span><button class="modal-close-x" onclick="closeModal('updateModal')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:#e8f5ee;border:1px solid #a0d0b0;padding:12px 14px;border-radius:3px;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;color:#1a5a1a;margin-bottom:6px;">✅ 새 버전이 있습니다!</div>
+        <div style="font-size:11px;color:#2a5a2a;" id="updateInfoText"></div>
+      </div>
+      <div style="font-size:11px;color:var(--gray4);line-height:1.8;">
+        📌 <strong>업데이트 방법:</strong><br>
+        · 아래 버튼을 클릭하면 새 버전 파일이 다운로드됩니다<br>
+        · 다운로드된 파일로 기존 파일을 교체하세요<br>
+        · <span style="color:var(--green);font-weight:700;">데이터는 구글 시트에 저장되어 있어 유지됩니다</span>
+      </div>
+      <div style="background:var(--or4);border:1px solid #e0b870;padding:8px 12px;border-radius:3px;margin-top:10px;font-size:11px;color:#7a3800;">
+        💡 새 파일을 열면 구글 연동 URL이 자동으로 유지됩니다.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('updateModal')">나중에</button>
+      <button class="btn" style="background:linear-gradient(to bottom,#4a9e4a,#2a7a2a);color:#fff;border-color:#1a5a1a;" onclick="downloadUpdate()">⬇️ 새 버전 다운로드</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════ FIREBASE SDK (compat, classic script — no bundler needed) ═══════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+
+<!-- ═══════════════════════ SCRIPT ═══════════════════════ -->
+<script>
+// ── Firebase (실시간 데이터 저장소) ──
+const firebaseConfig = {
+  apiKey: "AIzaSyClJSrZB-WFYxnhit4UoBVdKX1BU2TfeKM",
+  authDomain: "gwyouth-eff41.firebaseapp.com",
+  projectId: "gwyouth-eff41",
+  storageBucket: "gwyouth-eff41.firebasestorage.app",
+  messagingSenderId: "366727197461",
+  appId: "1:366727197461:web:f16051b4ac181adca7af1c"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+db.enablePersistence({synchronizeTabs:true}).catch(e=>console.warn('오프라인 캐시 비활성:',e.code));
+const SHARED_EMAIL = 'gwycc@hanmail.net'; // 공용 로그인 계정 — 실제 비밀번호는 코드에 없음(사용자가 PIN으로 입력)
+
+// ── 앱 버전 & GitHub 자동 업데이트 ──
+const APP_VERSION = '1.0.0';  // ← 업데이트할 때마다 이 숫자를 올려주세요
+const GH_USER     = 'chc4380-alt';  // ← GitHub 사용자명
+const GH_REPO     = 'gwyouth-narachan'; // ← GitHub 저장소명
+const GH_BRANCH   = 'main';   // ← 브랜치명 (보통 main)
+const GH_FILE     = '방과후아카데미_인사카드.html'; // ← GitHub에 올릴 파일명
+
+// GitHub Raw URL → getGhRawBase() 는 아래에서 정의됨
+
+let latestVersionInfo = null;
+
+// 버전 체크 (프로그램 시작 시 & 1시간마다)
+async function checkForUpdates(silent=false){
+  const base = getGhRawBase();
+  if(!base){ if(!silent) console.log('GitHub 설정 미완료'); return; }
+  try{
+    const res = await fetch(`${base}/version.json?t=${Date.now()}`);
+    if(!res.ok) return;
+    const info = await res.json();
+    latestVersionInfo = info;
+    if(compareVersions(info.version, APP_VERSION) > 0){
+      // 새 버전 존재
+      showUpdateBadge(info);
+    } else {
+      hideUpdateBadge();
+    }
+  } catch(e){ /* 업데이트 체크 실패는 무시 */ }
+}
+
+function compareVersions(a, b){
+  const pa = String(a).split('.').map(Number);
+  const pb = String(b).split('.').map(Number);
+  for(let i=0; i<3; i++){
+    const diff = (pa[i]||0) - (pb[i]||0);
+    if(diff !== 0) return diff;
+  }
+  return 0;
+}
+
+function showUpdateBadge(info){
+  const badge = document.getElementById('updateBadge');
+  const text  = document.getElementById('updateBadgeText');
+  if(badge){ badge.style.display='flex'; }
+  if(text){ text.textContent = `v${info.version} 업데이트`; }
+}
+
+function hideUpdateBadge(){
+  const badge = document.getElementById('updateBadge');
+  if(badge) badge.style.display='none';
+}
+
+function openUpdateModal(){
+  if(!latestVersionInfo) return;
+  const info = latestVersionInfo;
+  const el = document.getElementById('updateInfoText');
+  if(el){
+    el.innerHTML = `
+      현재 버전: <strong>v${APP_VERSION}</strong> &nbsp;→&nbsp; 새 버전: <strong style="color:#1a7a40">v${info.version}</strong><br>
+      ${info.date ? '업데이트 날짜: '+info.date+'<br>' : ''}
+      ${info.notes ? '<br>📝 변경 내용:<br>'+ info.notes.map(n=>'· '+n).join('<br>') : ''}
+    `;
+  }
+  document.getElementById('updateModal').classList.add('show');
+}
+
+async function downloadUpdate(){
+  const base = getGhRawBase();
+  if(!base || !latestVersionInfo){ toast('GitHub 설정을 먼저 완료해주세요','warn'); return; }
+  try{
+    const res = await fetch(`${base}/${GH_FILE}?t=${Date.now()}`);
+    if(!res.ok){ toast('다운로드 실패: ' + res.status, 'error'); return; }
+    const html = await res.text();
+    const blob = new Blob([html], {type:'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = GH_FILE;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    closeModal('updateModal');
+    toast(`✅ v${latestVersionInfo.version} 다운로드 완료! 새 파일로 교체해서 열어주세요.`);
+  } catch(e){ toast('다운로드 실패: '+e.message, 'error'); }
+}
+// ── 현재 탭 UI 새로고침 ──
+function refreshCurrentTab(){
+  const tab = document.querySelector('.tb-btn.active')?.dataset?.tab||'dashboard';
+  if(tab==='dashboard') renderDashboard();
+  else if(tab==='list'){ renderListGroupTabs(); renderList(); if(selectedMemberId) renderDetailPanel(selectedMemberId); }
+  else if(tab==='narakong'){ renderJobList(); renderBeanList(); if(selectedMemberId) renderBeanDetailPanel(selectedMemberId); }
+  else if(tab==='schedule') renderSchedule();
+  else if(tab==='stats') renderStats();
+  else if(tab==='groups') renderGroupsPanel();
+}
+
+// ── GitHub 자동 업데이트 설정 모달 (데이터와 무관, 코드 배포용) ──
+function openSheetsSetup(){
+  const ghU=localStorage.getItem('acad_gh_user')||GH_USER||'';
+  const ghR=localStorage.getItem('acad_gh_repo')||GH_REPO||'';
+  const ghUEl=document.getElementById('ghUserInput');
+  const ghREl=document.getElementById('ghRepoInput');
+  if(ghUEl) ghUEl.value=ghU;
+  if(ghREl) ghREl.value=ghR;
+  const ghSt=document.getElementById('ghConfigStatus');
+  if(ghSt) ghSt.innerHTML=ghU&&ghR?`<span style="color:var(--green)">✅ ${ghU}/${ghR} 연결됨</span>`:'';
+  document.getElementById('sheetsSetupModal').classList.add('show');
+}
+
+function saveGhConfig(){
+  const u=document.getElementById('ghUserInput').value.trim();
+  const r=document.getElementById('ghRepoInput').value.trim();
+  if(!u||!r){ document.getElementById('ghConfigStatus').innerHTML='<span style="color:var(--danger)">모두 입력해주세요</span>'; return; }
+  localStorage.setItem('acad_gh_user',u); localStorage.setItem('acad_gh_repo',r);
+  window._GH_USER_=u; window._GH_REPO_=r;
+  document.getElementById('ghConfigStatus').innerHTML='<span style="color:var(--green)">✅ 저장됨. 업데이트 확인 중...</span>';
+  checkForUpdates();
+}
+
+function getGhRawBase(){
+  const u=window._GH_USER_||GH_USER, r=window._GH_REPO_||GH_REPO;
+  return (u&&r)?`https://raw.githubusercontent.com/${u}/${r}/${GH_BRANCH}`:'';
+}
+let members=[],schedules=[],attendance={},groups=[],jobs=[],beanTx=[],jobHistory=[],settings={orgName:'광양시청소년문화센터',programName:'청소년방과후아카데미',advisorName:'',year:'2026'};
+let selectedMemberId=null,selectedSchId=null,activeListGroup='all',selectedJobId=null;
+
+function buildPayload(){return{version:'erp4',savedAt:new Date().toISOString(),members,schedules,attendance,groups,jobs,beanTx,jobHistory,settings};}
+
+// ── Firestore 컬렉션 배치 쓰기/삭제 헬퍼 (500건 제한 대응, 400건씩 청크) ──
+async function batchWriteAll(collectionName, items){
+  for(let i=0;i<items.length;i+=400){
+    const batch=db.batch();
+    items.slice(i,i+400).forEach(it=>batch.set(db.collection(collectionName).doc(String(it.id)), it));
+    await batch.commit();
+  }
+}
+async function batchDeleteAll(collectionName){
+  const snap=await db.collection(collectionName).get();
+  const docs=snap.docs;
+  for(let i=0;i<docs.length;i+=400){
+    const batch=db.batch();
+    docs.slice(i,i+400).forEach(d=>batch.delete(d.ref));
+    await batch.commit();
+  }
+}
+
+// JSON 백업 파일을 Firestore에 통째로 반영 (기존 데이터 전체 교체)
+async function applyPayload(d){
+  if(!d||typeof d!=='object')throw new Error('잘못된 파일');
+  await Promise.all(['members','schedules','groups','jobs','beanTx','jobHistory','attendance'].map(c=>batchDeleteAll(c)));
+  if(d.members) await batchWriteAll('members', d.members);
+  if(d.schedules) await batchWriteAll('schedules', d.schedules);
+  if(d.groups) await batchWriteAll('groups', d.groups);
+  if(d.jobs) await batchWriteAll('jobs', d.jobs);
+  if(d.beanTx) await batchWriteAll('beanTx', d.beanTx);
+  if(d.jobHistory) await batchWriteAll('jobHistory', d.jobHistory);
+  if(d.attendance){
+    const entries=Object.keys(d.attendance).map(date=>({id:date,...d.attendance[date]}));
+    await batchWriteAll('attendance', entries);
+  }
+  if(d.settings) await db.collection('meta').doc('settings').set({...settings,...d.settings});
+}
+
+async function openExistingFile(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+  inp.onchange=async e=>{
+    const f=e.target.files[0];if(!f)return;
+    try{ await applyPayload(JSON.parse(await f.text())); closeModal('storageModal'); toast(`✅ "${f.name}" 불러오기 완료`); }
+    catch(err){ toast('불러오기 실패: '+err.message,'error'); }
+  };
+  inp.click();
+}
+async function importData(e){
+  const f=e.target.files[0];if(!f)return;
+  if(members.length>0&&!confirm('현재 데이터를 지우고 불러올까요?')){e.target.value='';return;}
+  try{ await applyPayload(JSON.parse(await f.text())); toast('✅ 불러오기 완료'); }
+  catch(err){ toast('실패: '+err.message,'error'); }
+  e.target.value='';
+}
+function downloadJsonBackup(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(buildPayload(),null,2)],{type:'application/json'}));a.download=`방과후아카데미_백업_${todayISO()}.json`;a.click();toast('📥 JSON 백업 완료');}
+async function clearAllData(){
+  if(!confirm('전체 데이터를 초기화할까요? Firebase에 저장된 모든 데이터가 삭제되며 되돌릴 수 없습니다.'))return;
+  await Promise.all(['members','schedules','groups','jobs','beanTx','jobHistory','attendance'].map(c=>batchDeleteAll(c)));
+  toast('초기화 완료');
+}
+function updateStorageUI(){
+  const fn=document.getElementById('linkedFileName'),fm=document.getElementById('linkedFileMeta');
+  if(fn)fn.textContent='Firebase (실시간 클라우드)';
+  if(fm)fm.textContent=`청소년 ${members.length}명 · 일정 ${schedules.length}건 · 로그인: ${auth.currentUser?auth.currentUser.email:'-'}`;
+}
+function openStoragePanel(){updateStorageUI();document.getElementById('storageModal').classList.add('show');}
+
+// ── 기관 코드(PIN) 로그인 게이트 ──
+function submitPin(){
+  const pin=document.getElementById('pinInput').value;
+  const errEl=document.getElementById('pinError');
+  if(!pin){errEl.textContent='코드를 입력해주세요';return;}
+  errEl.textContent='확인 중...';
+  auth.signInWithEmailAndPassword(SHARED_EMAIL, pin).catch(err=>{
+    errEl.textContent = ['auth/wrong-password','auth/invalid-credential','auth/invalid-login-credentials'].includes(err.code) ? '코드가 올바르지 않습니다' : '오류: '+err.message;
+  });
+}
+let _appStarted=false;
+auth.onAuthStateChanged(user=>{
+  const gate=document.getElementById('pinGate');
+  if(user){
+    gate.style.display='none';
+    startApp();
+  } else {
+    gate.style.display='flex';
+    const pi=document.getElementById('pinInput'); if(pi) pi.value='';
+  }
+});
+
+// ── 로그인 후 앱 시작: Firestore 실시간 리스너 연결 ──
+function startApp(){
+  if(_appStarted)return; _appStarted=true;
+  db.collection('members').onSnapshot(snap=>{ members=snap.docs.map(d=>d.data()); refreshCurrentTab(); renderDashboard(); }, e=>console.error('members sync', e));
+  db.collection('schedules').onSnapshot(snap=>{ schedules=snap.docs.map(d=>d.data()); refreshCurrentTab(); }, e=>console.error('schedules sync', e));
+  db.collection('groups').onSnapshot(snap=>{ groups=snap.docs.map(d=>d.data()); renderListGroupTabs(); refreshAttendGroupSel(); refreshCurrentTab(); }, e=>console.error('groups sync', e));
+  db.collection('jobs').onSnapshot(snap=>{ jobs=snap.docs.map(d=>d.data()); refreshCurrentTab(); }, e=>console.error('jobs sync', e));
+  db.collection('beanTx').onSnapshot(snap=>{ beanTx=snap.docs.map(d=>d.data()); refreshCurrentTab(); }, e=>console.error('beanTx sync', e));
+  db.collection('jobHistory').onSnapshot(snap=>{ jobHistory=snap.docs.map(d=>d.data()); }, e=>console.error('jobHistory sync', e));
+  db.collection('attendance').onSnapshot(snap=>{
+    attendance={};
+    snap.docs.forEach(d=>{ attendance[d.id]=d.data(); });
+    renderSignbookFromUI();
+    const date=document.getElementById('attendDate')?.value;
+    if(date) renderAttendStat(date);
+  }, e=>console.error('attendance sync', e));
+  db.collection('meta').doc('settings').onSnapshot(doc=>{
+    if(doc.exists) settings={...settings,...doc.data()};
+    updateHeader();
+  }, e=>console.error('settings sync', e));
+
+  window.addEventListener('online', ()=>setFSBadge(true));
+  window.addEventListener('offline', ()=>setFSBadge(false));
+  setFSBadge(navigator.onLine);
+
+  updateHeader();renderDashboard();renderListGroupTabs();refreshAttendGroupSel();
+  checkForUpdates(true);
+  setInterval(()=>checkForUpdates(true), 60*60*1000);
+  setTimeout(()=>{
+    const now=new Date(),todayStr=todayISO();
+    const bdayToday=members.filter(m=>{const md=getMonthDay(m.birthdate);return md&&md.month===now.getMonth()+1&&md.day===now.getDate();});
+    const todaySch=schedules.filter(s=>s.date===todayStr);
+    if(bdayToday.length>0)toast(`🎉 오늘은 ${bdayToday.map(m=>m.name).join(', ')}님 생일!`);
+    if(todaySch.length>0)setTimeout(()=>toast(`🔔 오늘 일정: ${todaySch.map(s=>s.title).join(', ')}`),3500);
+  },700);
+}
+function setFSBadge(online){
+  const i=document.getElementById('fsIcon'),t=document.getElementById('fsText');
+  if(!i)return;
+  if(online){i.textContent='✅';t.textContent='실시간 저장';}
+  else{i.textContent='📡';t.textContent='오프라인(대기중)';}
+}
+
+// ── 유틸 ──
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function todayISO(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function getAge(bd){if(!bd)return '';const b=new Date(bd),n=new Date();let a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))a--;return a;}
+function getMonthDay(bd){if(!bd)return null;const d=new Date(bd);return{month:d.getMonth()+1,day:d.getDate()};}
+function dateFmtKr(iso){if(!iso)return '';const d=new Date(iso+'T00:00:00');return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일(${['일','월','화','수','목','금','토'][d.getDay()]})`;}
+function bd6(bd){if(!bd)return '-';const d=new Date(bd);return String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');}
+function uid(){return 'm_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);}
+function schUid(){return 's_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);}
+function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast show ${type}`;setTimeout(()=>t.className='toast',3000);}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+
+// ── 탭 ──
+const VIEWS={dashboard:'view-dashboard',list:'view-list',add:'view-add',groups:'view-groups',narakong:'view-narakong',schedule:'view-schedule',attend:'view-attend',stats:'view-stats'};
+function switchTab(tab){
+  Object.values(VIEWS).forEach(v=>{const el=document.getElementById(v);if(el)el.style.display='none';});
+  const el=document.getElementById(VIEWS[tab]);if(el)el.style.display=(tab==='list'||tab==='add'||tab==='schedule'||tab==='attend')?'flex':'block';
+  document.querySelectorAll('.tb-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  if(tab==='dashboard')renderDashboard();
+  if(tab==='list'){renderListGroupTabs();renderList();if(selectedMemberId)renderDetailPanel(selectedMemberId);}
+  if(tab==='add')setTimeout(initDrop,50);
+  if(tab==='groups'){renderGroupsPanel();}
+  if(tab==='narakong'){renderJobList();renderBeanList();}
+  if(tab==='schedule')renderSchedule();
+  if(tab==='attend'){if(!document.getElementById('attendDate').value)document.getElementById('attendDate').value=todayISO();refreshAttendSel();refreshAttendGroupSel();onAttendDateChange();}
+  if(tab==='stats')renderStats();
+}
+function updateHeader(){
+  document.getElementById('appTitle')&&(document.getElementById('appTitle').textContent=settings.programName||'청소년방과후아카데미');
+  document.getElementById('appSubTitle').textContent=settings.orgName||'광양시청소년문화센터';
+  document.title=(settings.programName||'방과후아카데미')+' 인사카드';
+}
+
+// ── 설정 ──
+function openSettings(){document.getElementById('setOrgName').value=settings.orgName||'';document.getElementById('setProgramName').value=settings.programName||'';document.getElementById('setAdvisorName').value=settings.advisorName||'';document.getElementById('setYear').value=settings.year||'2025';document.getElementById('settingsModal').classList.add('show');}
+function saveSettings(){settings.orgName=document.getElementById('setOrgName').value.trim()||'광양시청소년문화센터';settings.programName=document.getElementById('setProgramName').value.trim()||'청소년방과후아카데미';settings.advisorName=document.getElementById('setAdvisorName').value.trim();settings.year=document.getElementById('setYear').value;db.collection('meta').doc('settings').set(settings,{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));updateHeader();closeModal('settingsModal');toast('✅ 설정 저장 완료');}
+
+// ── 사진 ──
+let currentPhotoDataUrl='';
+function onPhotoSelected(e){const file=e.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){toast('이미지 파일만 가능','warn');return;}const reader=new FileReader();reader.onload=ev=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');const MAX_W=400,MAX_H=520;let w=img.width,h=img.height;if(w/h>MAX_W/MAX_H){w=MAX_W;h=Math.round(img.height*MAX_W/img.width);}else{h=MAX_H;w=Math.round(img.width*MAX_H/img.height);}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);currentPhotoDataUrl=canvas.toDataURL('image/jpeg',.82);setPhotoPreview(currentPhotoDataUrl);toast('✅ 사진 등록 완료');};img.src=ev.target.result;};reader.readAsDataURL(file);e.target.value='';}
+function setPhotoPreview(url){const p=document.getElementById('photoPreview'),d=document.getElementById('photoDelBtn');if(!p)return;if(url){p.innerHTML=`<img src="${url}" alt="사진">`;p.style.border='1px solid var(--or1)';if(d)d.style.display='flex';}else{p.innerHTML='<span style="font-size:20px;opacity:.4">📷</span><span>클릭하여<br>사진 추가</span>';p.style.border='1px dashed var(--border-d)';if(d)d.style.display='none';}}
+function removePhoto(){if(!confirm('사진을 삭제할까요?'))return;currentPhotoDataUrl='';setPhotoPreview('');}
+function initDrop(){const el=document.getElementById('photoPreview');if(!el)return;el.ondragover=e=>{e.preventDefault();};el.ondrop=e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/')){const fake={target:{files:[f],value:''}};onPhotoSelected(fake);};};}
+
+// ── 태그 ──
+function toggleEtag(el){el.classList.toggle('on');}
+function getSelectedTags(){return[...document.querySelectorAll('#interestTagsEdit .etag.on')].map(e=>e.textContent.trim());}
+function setTagsFromArray(arr){document.querySelectorAll('#interestTagsEdit .etag').forEach(el=>el.classList.toggle('on',arr.includes(el.textContent.trim())));}
+
+// ── 상세탭 ──
+function switchDetailTab(dt){
+  document.querySelectorAll('.dtab').forEach(b=>b.classList.toggle('active',b.dataset.dt===dt));
+  document.querySelectorAll('.detail-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('dt-'+dt).classList.add('active');
+  if(dt==='bean'&&selectedMemberId)renderBeanDetailPanel(selectedMemberId);
+}
+
+// ── 폼 ──
+function resetForm(){document.getElementById('memberForm').reset();document.getElementById('memberId').value='';currentPhotoDataUrl='';setPhotoPreview('');setTagsFromArray([]);}
+function saveMember(e){
+  e.preventDefault();
+  const id=document.getElementById('memberId').value||uid();
+  const m={id,photo:currentPhotoDataUrl,name:document.getElementById('name').value.trim(),nameEn:document.getElementById('nameEn').value.trim(),gender:document.getElementById('gender').value,birthdate:document.getElementById('birthdate').value,phone:document.getElementById('phone').value.trim(),address:document.getElementById('address').value.trim(),school:document.getElementById('school').value.trim(),grade:document.getElementById('grade').value,guardianName:document.getElementById('guardianName').value.trim(),guardianRel:document.getElementById('guardianRel').value.trim(),guardianPhone:document.getElementById('guardianPhone').value.trim(),emergencyPhone:document.getElementById('emergencyPhone').value.trim(),joinDate:document.getElementById('joinDate').value,status:document.getElementById('status').value,activeYear:document.getElementById('activeYear').value,groupName:document.getElementById('groupName').value.trim(),dream:document.getElementById('dream').value.trim(),motto:document.getElementById('motto').value.trim(),goalText:document.getElementById('goalText').value.trim(),interests:getSelectedTags(),advisorNote:document.getElementById('advisorNote').value.trim(),history:document.getElementById('history').value.trim(),createdAt:new Date().toISOString()};
+  const idx=members.findIndex(x=>x.id===id);
+  if(idx>=0){members[idx]=m;toast('✅ 수정되었습니다');}else{members.push(m);toast('✅ 등록되었습니다');}
+  db.collection('members').doc(id).set(m).catch(err=>toast('저장 실패: '+err.message,'error'));
+  resetForm();selectedMemberId=id;switchTab('list');
+}
+function editMember(id){
+  const m=members.find(x=>x.id===id);if(!m)return;
+  resetForm();currentPhotoDataUrl=m.photo||'';setPhotoPreview(currentPhotoDataUrl);
+  document.getElementById('memberId').value=m.id;
+  ['name','nameEn','phone','address','school','groupName','dream','motto','advisorNote','history'].forEach(k=>document.getElementById(k).value=m[k]||'');
+  document.getElementById('goalText').value=m.goalText||'';
+  document.getElementById('gender').value=m.gender||'';document.getElementById('birthdate').value=m.birthdate||'';
+  document.getElementById('grade').value=m.grade||'';document.getElementById('guardianName').value=m.guardianName||'';
+  document.getElementById('guardianRel').value=m.guardianRel||'';document.getElementById('guardianPhone').value=m.guardianPhone||'';
+  document.getElementById('emergencyPhone').value=m.emergencyPhone||'';document.getElementById('joinDate').value=m.joinDate||'';
+  document.getElementById('status').value=m.status||'활동중';document.getElementById('activeYear').value=m.activeYear||'2025';
+  setTagsFromArray(m.interests||[]);switchTab('add');
+}
+function editSelected(){if(!selectedMemberId){toast('목록에서 청소년을 먼저 선택해주세요','warn');return;}editMember(selectedMemberId);}
+function deleteMember(id){const m=members.find(x=>x.id===id);if(!m)return;if(!confirm(`"${m.name}" 청소년을 삭제할까요?`))return;members=members.filter(x=>x.id!==id);if(selectedMemberId===id)selectedMemberId=null;db.collection('members').doc(id).delete().catch(err=>toast('삭제 실패: '+err.message,'error'));renderList();clearDetailPanel();toast('🗑 삭제되었습니다');}
+function deleteSelected(){if(!selectedMemberId){toast('목록에서 청소년을 먼저 선택해주세요','warn');return;}deleteMember(selectedMemberId);}
+function viewSelectedCard(){if(!selectedMemberId){toast('목록에서 청소년을 먼저 선택해주세요','warn');return;}viewCard(selectedMemberId);}
+
+// ── 반 관리 ──
+function gUid(){return 'g_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);}
+
+function openGroupForm(id){
+  document.getElementById('groupId').value='';
+  document.getElementById('groupNameInput').value='';
+  document.getElementById('groupDesc').value='';
+  document.getElementById('groupModalTitle').textContent='🏷️ 새 반 추가';
+  if(id){
+    const g=groups.find(x=>x.id===id);if(!g)return;
+    document.getElementById('groupModalTitle').textContent='🏷️ 반 수정';
+    document.getElementById('groupId').value=g.id;
+    document.getElementById('groupNameInput').value=g.name||'';
+    document.getElementById('groupDesc').value=g.desc||'';
+  }
+  // 구성원 선택 UI
+  const picker=document.getElementById('groupMemberPicker');
+  const curGroup=id?groups.find(x=>x.id===id):null;
+  const curMembers=curGroup?curGroup.memberIds||[]:[];
+  const activeMems=members.filter(m=>m.status==='활동중').sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  picker.innerHTML=activeMems.map(m=>`
+    <div onclick="this.classList.toggle('on')" data-id="${m.id}" class="etag${curMembers.includes(m.id)?' on':''}" style="padding:3px 8px;font-size:11px;margin:1px;">
+      ${esc(m.name)} <span style="font-size:9px;color:inherit;opacity:.7">${esc(m.grade||'')}</span>
+    </div>`).join('');
+  document.getElementById('groupModal').classList.add('show');
+}
+
+function saveGroup(){
+  const name=document.getElementById('groupNameInput').value.trim();
+  if(!name){toast('반 이름을 입력해주세요','warn');return;}
+  const id=document.getElementById('groupId').value||gUid();
+  const desc=document.getElementById('groupDesc').value.trim();
+  const memberIds=[...document.querySelectorAll('#groupMemberPicker .etag.on')].map(el=>el.dataset.id);
+  const idx=groups.findIndex(x=>x.id===id);
+  const g={id,name,desc,memberIds};
+  if(idx>=0){groups[idx]=g;}else{groups.push(g);}
+  db.collection('groups').doc(id).set(g).catch(err=>toast('저장 실패: '+err.message,'error'));
+  closeModal('groupModal');renderGroupsPanel();renderListGroupTabs();refreshAttendGroupSel();toast(`✅ "${name}" 반 저장 완료`);
+}
+
+function deleteGroup(id){
+  const g=groups.find(x=>x.id===id);if(!g)return;
+  if(!confirm(`"${g.name}" 반을 삭제할까요?`))return;
+  groups=groups.filter(x=>x.id!==id);
+  db.collection('groups').doc(id).delete().catch(err=>toast('삭제 실패: '+err.message,'error'));
+  renderGroupsPanel();renderListGroupTabs();refreshAttendGroupSel();toast('🗑 삭제됨');
+}
+
+function renderGroupsPanel(){
+  const con=document.getElementById('groupsContent');
+  if(groups.length===0){
+    con.innerHTML=`<div style="text-align:center;padding:40px;color:var(--gray3);font-size:13px">등록된 반이 없습니다.<br><br><button class="btn btn-or" onclick="openGroupForm()">➕ 첫 번째 반 추가</button></div>`;
+    return;
+  }
+  con.innerHTML=`<table class="grid-table"><thead><tr>
+    <th style="width:36px">No.</th><th style="width:100px">반 이름</th><th style="width:120px">설명</th>
+    <th>구성원</th><th style="width:68px">관리</th>
+  </tr></thead><tbody>`+groups.map((g,i)=>{
+    const mems=members.filter(m=>(g.memberIds||[]).includes(m.id));
+    return `<tr>
+      <td style="text-align:center">${i+1}</td>
+      <td style="font-weight:700;color:var(--or1)">${esc(g.name)}</td>
+      <td style="color:var(--gray3)">${esc(g.desc||'-')}</td>
+      <td><div style="display:flex;flex-wrap:wrap;gap:2px">${mems.map(m=>`<span style="background:var(--or4);border:1px solid #e0b870;padding:1px 5px;font-size:10px;">${esc(m.name)}</span>`).join('')||'<span style="color:var(--gray3)">없음</span>'}</div></td>
+      <td><div style="display:flex;gap:2px">
+        <button class="btn btn-xs" onclick="openGroupForm('${g.id}')">수정</button>
+        <button class="btn btn-xs btn-danger" onclick="deleteGroup('${g.id}')">삭제</button>
+      </div></td>
+    </tr>`;
+  }).join('')+`</tbody></table>`;
+}
+
+// ── 목록 반 탭 ──
+function renderListGroupTabs(){
+  const wrap=document.getElementById('listGroupTabs');if(!wrap)return;
+  wrap.innerHTML=`<button class="gtab all${activeListGroup==='all'?' active':''}" onclick="setListGroup('all')">전체</button>`
+    +groups.map(g=>`<button class="gtab${activeListGroup===g.id?' active':''}" onclick="setListGroup('${g.id}')">${esc(g.name)} <span style="font-size:9px">(${(g.memberIds||[]).length})</span></button>`).join('');
+}
+function setListGroup(gid){activeListGroup=gid;renderListGroupTabs();renderList();}
+
+// ── 서명부 반 셀렉트 ──
+function refreshAttendGroupSel(){
+  const sel=document.getElementById('attendGroup');if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">전체 (활동중)</option>'+groups.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('');
+  if(cur)sel.value=cur;
+}
+
+// ── 목록 렌더 (반 필터 포함) ──
+function renderList(){
+  const kw=document.getElementById('searchInput').value.toLowerCase();
+  const fg=document.getElementById('filterGrade').value;
+  const fs=document.getElementById('filterStatus').value;
+  // 반 필터
+  let groupMemberIds=null;
+  if(activeListGroup!=='all'){
+    const g=groups.find(x=>x.id===activeListGroup);
+    groupMemberIds=g?g.memberIds||[]:[];
+  }
+  let list=members.filter(m=>{
+    if(groupMemberIds&&!groupMemberIds.includes(m.id))return false;
+    if(kw&&!((m.name||'').toLowerCase().includes(kw)||(m.school||'').toLowerCase().includes(kw)||(m.groupName||'').toLowerCase().includes(kw)))return false;
+    if(fg&&m.grade!==fg)return false;if(fs&&m.status!==fs)return false;return true;
+  });
+  const lbl=document.getElementById('listCountLabel');
+  if(lbl)lbl.textContent=`${list.length}명 표시 / 전체 ${members.length}명`;
+  const tbody=document.getElementById('listGridBody');
+  if(members.length===0){tbody.innerHTML=`<tr><td colspan="14" class="grid-empty">등록된 청소년이 없습니다. 툴바의 [청소년등록] 버튼을 클릭하여 등록해주세요.</td></tr>`;return;}
+  if(list.length===0){tbody.innerHTML=`<tr><td colspan="14" class="grid-empty">검색 결과가 없습니다.</td></tr>`;return;}
+  const stDot=s=>s==='활동중'?'status-on':s==='휴원'?'status-pause':'status-out';
+  tbody.innerHTML=list.map((m,i)=>`<tr class="${selectedMemberId===m.id?'selected':''}" onclick="selectMember('${m.id}')">
+    <td class="col-no">${i+1}</td>
+    <td class="col-photo" style="padding:2px 3px;text-align:center">${m.photo?`<img src="${m.photo}" style="width:24px;height:32px;object-fit:cover;display:block;margin:0 auto;">`:'<span style="font-size:14px;color:#ccc">👤</span>'}</td>
+    <td class="col-name">${esc(m.name)}</td>
+    <td class="col-school">${esc(m.school||'-')}</td>
+    <td class="col-grade">${esc(m.grade||'-')}</td>
+    <td class="col-gender" style="text-align:center">${esc(m.gender||'-')}</td>
+    <td class="col-birth">${bd6(m.birthdate)}</td>
+    <td class="col-phone">${esc(m.phone||'-')}</td>
+    <td class="col-guardian">${esc(m.guardianName||'-')}</td>
+    <td class="col-group">${esc(m.groupName||'-')}</td>
+    <td class="col-status"><span class="status-dot ${stDot(m.status||'활동중')}"></span>${esc(m.status||'활동중')}</td>
+    <td class="col-year" style="text-align:center">${esc(m.activeYear||'-')}</td>
+    <td class="col-date">${m.joinDate||'-'}</td>
+    <td class="col-sign" style="padding:2px 3px;text-align:center">${m.defaultSign?`<img src="${m.defaultSign}" style="max-height:32px;max-width:68px;display:block;margin:0 auto;" alt="서명">`:'<span style="color:#ccc;font-size:10px">없음</span>'}</td>
+    <td class="col-job" style="text-align:center">${(()=>{const j=jobs.find(jb=>(jb.memberIds||[]).includes(m.id));return j?`<span class="bean-job-badge" style="font-size:9px">${esc(j.name)}</span>`:'<span style="color:var(--gray3);font-size:10px">-</span>'})()}</td>
+    <td class="col-bean" style="text-align:center;font-weight:700">${getBeanBalance(m.id)||'-'}</td>
+    <td class="col-actions"><div style="display:flex;gap:2px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-xs" onclick="event.stopPropagation();viewCard('${m.id}')">카드</button>
+      <button class="btn btn-xs" onclick="event.stopPropagation();editMember('${m.id}')">수정</button>
+      <button class="btn btn-xs" style="color:var(--green);border-color:#a0d0b0" onclick="event.stopPropagation();openListSignPad('${m.id}','${esc(m.name)}')">서명</button>
+      <button class="btn btn-xs btn-danger" onclick="event.stopPropagation();deleteMember('${m.id}')">삭제</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function selectMember(id){
+  selectedMemberId=id;
+  document.querySelectorAll('#listGridBody tr').forEach(tr=>tr.classList.toggle('selected',tr.onclick&&tr.getAttribute('onclick')&&tr.getAttribute('onclick').includes(id)));
+  // re-render to apply selection
+  renderList();
+  renderDetailPanel(id);
+}
+
+function clearDetailPanel(){
+  ['dt-basic','dt-guardian','dt-intro','dt-memo','dt-bean'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<div style="color:var(--gray3);font-size:11px;padding:10px 0">데이터 없음</div>';});
+}
+
+function renderDetailPanel(id){
+  const m=members.find(x=>x.id===id);if(!m)return;
+  const age=getAge(m.birthdate);
+  // 기본정보
+  document.getElementById('dt-basic').innerHTML=`<div class="detail-top">
+    <div class="info-photo">${m.photo?`<img src="${m.photo}" alt="사진">`:'👤'}</div>
+    <div style="flex:1">
+      <div style="font-size:15px;font-weight:700;color:var(--or1);margin-bottom:4px">${esc(m.name)} <span style="font-size:11px;color:var(--gray3)">${m.nameEn?esc(m.nameEn):''}</span></div>
+      <div class="info-grid">
+        ${infoRow('학교',esc(m.school||'-'))}${infoRow('학년',esc(m.grade||'-'))}${infoRow('성별',esc(m.gender||'-'))}${infoRow('생년월일',m.birthdate?bd6(m.birthdate)+(age?` (만 ${age}세)`:''): '-')}
+        ${infoRow('연락처',esc(m.phone||'-'))}${infoRow('반/그룹',esc(m.groupName||'-'))}${infoRow('상태',esc(m.status||'활동중'))}${infoRow('입원일',m.joinDate||'-')}
+        ${infoRow('주소',esc(m.address||'-'),true)}
+      </div>
+    </div>
+  </div>`;
+  // 보호자
+  document.getElementById('dt-guardian').innerHTML=`<div class="info-grid">
+    ${infoRow('보호자명',esc(m.guardianName||'-'))}${infoRow('관계',esc(m.guardianRel||'-'))}${infoRow('보호자연락처',esc(m.guardianPhone||'-'))}${infoRow('비상연락망',esc(m.emergencyPhone||'-'))}
+  </div>`;
+  // 자기소개
+  document.getElementById('dt-intro').innerHTML=`<div style="display:flex;flex-direction:column;gap:5px;">
+    ${m.dream?`<div><span style="font-size:10px;color:var(--gray3);font-weight:700">꿈/희망: </span>${esc(m.dream)}</div>`:''}
+    ${m.motto?`<div><span style="font-size:10px;color:var(--gray3);font-weight:700">좌우명: </span>${esc(m.motto)}</div>`:''}
+    ${m.goalText?`<div><span style="font-size:10px;color:var(--gray3);font-weight:700">올해목표: </span>${esc(m.goalText)}</div>`:''}
+    ${(m.interests||[]).length?`<div><span style="font-size:10px;color:var(--gray3);font-weight:700">관심분야: </span>${m.interests.map(t=>`<span style="background:var(--or4);border:1px solid #e0b870;padding:0 4px;font-size:10px;margin-right:2px;">${esc(t)}</span>`).join('')}</div>`:''}
+  </div>`;
+  // 메모
+  document.getElementById('dt-memo').innerHTML=`<div style="display:flex;flex-direction:column;gap:6px;">
+    ${m.advisorNote?`<div><span style="font-size:10px;color:var(--gray3);font-weight:700">상담/특이사항:</span><div style="font-size:11px;white-space:pre-wrap;line-height:1.5;margin-top:2px;">${esc(m.advisorNote)}</div></div>`:''}
+    ${m.history?`<div><span style="font-size:10px;color:var(--gray3);font-weight:700">활동이력:</span><div style="font-size:11px;white-space:pre-wrap;line-height:1.5;margin-top:2px;">${esc(m.history)}</div></div>`:''}
+    ${!m.advisorNote&&!m.history?'<div style="color:var(--gray3);font-size:11px">기록 없음</div>':''}
+  </div>`;
+}
+function infoRow(label,val,full=false){return `<div class="info-row"${full?' style="grid-column:1/-1"':''}><span class="info-label">${label}</span><span class="info-val">${val}</span></div>`;}
+
+// ── 인사카드 ──
+function viewCard(id){
+  const m=members.find(x=>x.id===id);if(!m)return;
+  const age=getAge(m.birthdate);
+  const bdStr=m.birthdate?dateFmtKr(m.birthdate)+(age?` (만 ${age}세)`:''):'-';
+  const interestChips=(m.interests||[]).map(t=>`<span class="cp-tag">${esc(t)}</span>`).join('');
+  const dreamSec=(m.dream||m.motto||m.goalText)?`<div class="cp-divider"></div><div class="cp-dream">
+    ${m.dream?`<div class="cp-dream-label">✦ 나의 꿈</div><div class="cp-dream-text">${esc(m.dream)}</div>`:''}
+    ${m.motto?`<div class="cp-dream-label" style="margin-top:4px">✦ 좌우명</div><div class="cp-dream-text">${esc(m.motto)}</div>`:''}
+    ${m.goalText?`<div class="cp-dream-label" style="margin-top:4px">🏆 올해 나의 목표</div><div class="cp-dream-text">${esc(m.goalText)}</div>`:''}
+  </div>`:'';
+  document.getElementById('cardContent').innerHTML=`<div class="card-print">
+    <div class="cph-bar">
+      <div class="cph-org">${esc(settings.orgName)} · ${esc(settings.programName)}</div>
+      <div class="cph-title">인 사 카 드</div>
+      <div class="cph-sub">Youth After-School Academy</div>
+      <span class="cph-badge">${esc(settings.year||'2025')}년도</span>
+    </div>
+    <div class="cpb-body">
+      <div class="cp-photo">${m.photo?`<img src="${m.photo}" alt="사진">`:'👤'}</div>
+      <div class="cp-info">
+        <div class="cp-name">${esc(m.name)}</div>
+        ${m.nameEn?`<div class="cp-name-en">${esc(m.nameEn)}</div>`:''}
+        <table class="cp-table">
+          <tr><th>학교/학년</th><td>${esc(m.school||'-')} ${esc(m.grade||'')}</td></tr>
+          <tr><th>성별</th><td>${esc(m.gender||'-')}${bdStr!=='-'?' &nbsp;|&nbsp; 생년월일: '+esc(bdStr):''}</td></tr>
+          <tr><th>연락처</th><td>${esc(m.phone||'-')}</td></tr>
+          <tr><th>보호자</th><td>${esc(m.guardianName||'-')} (${esc(m.guardianRel||'-')})${m.guardianPhone?' · '+esc(m.guardianPhone):''}</td></tr>
+          ${m.groupName?`<tr><th>반/그룹</th><td>${esc(m.groupName)}</td></tr>`:''}
+          <tr><th>입원일</th><td>${m.joinDate?dateFmtKr(m.joinDate):'-'}</td></tr>
+        </table>
+      </div>
+    </div>
+    ${dreamSec}
+    ${interestChips?`<div class="cp-tags">${interestChips}</div>`:''}
+    <div class="cp-footer">
+      <span class="cp-footer-l">${esc(settings.year||'2025')} · ${esc(settings.orgName)}</span>
+      <span class="cp-footer-r">함께 성장하는 청소년 🌱</span>
+    </div>
+  </div>`;
+  document.getElementById('cardModal').classList.add('show');
+}
+
+// ── 일정 ──
+function openScheduleForm(id){
+  document.getElementById('scheduleForm').reset();document.getElementById('schId').value='';
+  document.getElementById('scheduleModalTitle').textContent='📅 새 일정 등록';
+  if(id){const s=schedules.find(x=>x.id===id);if(!s)return;document.getElementById('scheduleModalTitle').textContent='📅 일정 수정';document.getElementById('schId').value=s.id;document.getElementById('schTitle').value=s.title||'';document.getElementById('schDate').value=s.date||'';document.getElementById('schTime').value=s.time||'';document.getElementById('schLocation').value=s.location||'';document.getElementById('schContent').value=s.content||'';document.getElementById('schNote').value=s.note||'';}
+  document.getElementById('scheduleModal').classList.add('show');
+}
+function saveSchedule(e){
+  e.preventDefault();
+  const id=document.getElementById('schId').value||schUid();
+  const s={id,title:document.getElementById('schTitle').value.trim(),date:document.getElementById('schDate').value,time:document.getElementById('schTime').value.trim(),location:document.getElementById('schLocation').value.trim(),content:document.getElementById('schContent').value.trim(),note:document.getElementById('schNote').value.trim()};
+  const idx=schedules.findIndex(x=>x.id===id);
+  if(idx>=0){schedules[idx]=s;toast('✅ 일정 수정 완료');}else{schedules.push(s);toast('✅ 일정 등록 완료');}
+  db.collection('schedules').doc(id).set(s).catch(err=>toast('저장 실패: '+err.message,'error'));
+  closeModal('scheduleModal');renderSchedule();
+}
+function toggleComplete(id){
+  const s=schedules.find(x=>x.id===id); if(!s)return;
+  s.completed=!s.completed;
+  if(s.completed && !s.completedAt) s.completedAt=todayISO();
+  db.collection('schedules').doc(id).update({completed:s.completed,completedAt:s.completedAt}).catch(err=>toast('저장 실패: '+err.message,'error'));
+  renderSchedule();
+  toast(s.completed?'✅ 활동완료로 표시됐습니다':'활동완료가 취소됐습니다');
+}
+
+function deleteSchedule(id){const s=schedules.find(x=>x.id===id);if(!s)return;if(!confirm(`"${s.title}" 일정을 삭제할까요?`))return;schedules=schedules.filter(x=>x.id!==id);if(selectedSchId===id){selectedSchId=null;document.getElementById('schDetail').innerHTML='<div style="color:var(--gray3);font-size:11px;text-align:center;padding:20px 0">일정을 선택하면 상세 내용이 표시됩니다.</div>';}db.collection('schedules').doc(id).delete().catch(err=>toast('삭제 실패: '+err.message,'error'));renderSchedule();toast('🗑 삭제됨');}
+function renderSchedule(){
+  const filter=document.getElementById('scheduleFilter').value,today=todayISO();
+  let list=[...schedules].sort((a,b)=>a.date.localeCompare(b.date));
+  if(filter==='upcoming')list=list.filter(s=>s.date>=today);
+  else if(filter==='past')list=list.filter(s=>s.date<today);
+  else if(filter==='month'){const ym=today.slice(0,7);list=list.filter(s=>s.date.startsWith(ym));}
+  const sumEl=document.getElementById('scheduleSummary');if(sumEl)sumEl.textContent=`${list.length}건 표시`;
+  const tbody=document.getElementById('schGridBody');
+  if(schedules.length===0){tbody.innerHTML=`<tr><td colspan="9" class="grid-empty">등록된 일정이 없습니다. 위 [새 일정 등록] 버튼을 클릭해주세요.</td></tr>`;return;}
+  if(list.length===0){tbody.innerHTML=`<tr><td colspan="9" class="grid-empty">해당 기간에 일정이 없습니다.</td></tr>`;return;}
+  const activeM=members.filter(m=>m.status==='활동중');
+  tbody.innerHTML=list.map((s,i)=>{
+    const isPast=s.date<today,isToday=s.date===today;
+    const attRec=attendance[s.date]||{};
+    const sigCount=Object.values(attRec.signatures||{}).filter(Boolean).length;
+    const presentCount=Object.values(attRec.byMember||{}).filter(v=>v==='present'||v==='late').length;
+    const stColor=isToday?'color:var(--or1);font-weight:700':isPast?'color:var(--gray3)':'color:var(--green);font-weight:700';
+    return `<tr class="${selectedSchId===s.id?'selected':''}" onclick="selectSchedule('${s.id}')">
+      <td style="text-align:center;color:var(--gray3)">${i+1}</td>
+      <td style="text-align:center;${stColor}">${s.date}</td>
+      <td style="text-align:center">${esc(s.time||'-')}</td>
+      <td style="font-weight:700">${esc(s.title)}</td>
+      <td>${esc(s.location||'-')}</td>
+      <td style="text-align:center">${sigCount}명</td>
+      <td style="text-align:center">${presentCount}/${activeM.length}명</td>
+      <td style="text-align:center;${stColor}">${isToday?'오늘':isPast?'종료':'예정'}</td>
+      <td style="text-align:center"><div style="display:flex;gap:2px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-xs btn-or" onclick="event.stopPropagation();goAttendWithSchedule('${s.date}','${s.id}')">서명부</button>
+        ${s.completed
+          ? `<button class="btn btn-xs" style="color:var(--green);border-color:#a0d0b0;font-size:10px" onclick="event.stopPropagation();toggleComplete('${s.id}')">✅완료</button>`
+          : `<button class="btn btn-xs" style="color:var(--green);border-color:#a0d0b0" onclick="event.stopPropagation();toggleComplete('${s.id}')">완료</button>`
+        }
+        <button class="btn btn-xs" onclick="event.stopPropagation();openScheduleForm('${s.id}')">수정</button>
+        <button class="btn btn-xs btn-danger" onclick="event.stopPropagation();deleteSchedule('${s.id}')">삭제</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+function selectSchedule(id){
+  selectedSchId=id;
+  const s=schedules.find(x=>x.id===id);if(!s)return;
+  renderSchedule();
+  document.getElementById('schDetail').innerHTML=`<div class="sch-detail-inner">
+    <div class="sch-detail-title">${esc(s.title)}</div>
+    <div><strong>날짜:</strong> ${dateFmtKr(s.date)}${s.time?' '+esc(s.time):''}</div>
+    ${s.location?`<div><strong>장소:</strong> ${esc(s.location)}</div>`:''}
+    ${s.content?`<div style="margin-top:6px;white-space:pre-wrap">${esc(s.content)}</div>`:''}
+    ${s.note?`<div style="margin-top:6px;background:var(--or4);border:1px solid #e0b870;padding:4px 8px;font-size:10px;"><strong>📌 준비물:</strong> ${esc(s.note)}</div>`:''}
+  </div>`;
+}
+function goAttendWithSchedule(date,schId){switchTab('attend');document.getElementById('attendDate').value=date;refreshAttendSel();document.getElementById('attendSchedule').value=schId;onAttendDateChange();}
+
+// ── 서명부 ──
+function refreshAttendSel(){const sel=document.getElementById('attendSchedule'),cur=sel.value;sel.innerHTML='<option value="">— 일정 없음 —</option>';[...schedules].sort((a,b)=>b.date.localeCompare(a.date)).forEach(s=>{const opt=document.createElement('option');opt.value=s.id;opt.textContent=`${s.date} ${s.title}`;sel.appendChild(opt);});if(cur)sel.value=cur;}
+function onAttendDateChange(){const date=document.getElementById('attendDate').value;if(!date)return;const rec=attendance[date]||{};if(rec.scheduleId)document.getElementById('attendSchedule').value=rec.scheduleId;renderAttendStat(date);renderSignbook(date);}
+function onAttendScheduleChange(){const date=document.getElementById('attendDate').value;if(!date)return;const schId=document.getElementById('attendSchedule').value;if(!attendance[date])attendance[date]={scheduleId:'',byMember:{},signatures:{}};attendance[date].scheduleId=schId;if(schId){const s=schedules.find(x=>x.id===schId);if(s&&s.date!==date){document.getElementById('attendDate').value=s.date;onAttendDateChange();return;}}db.collection('attendance').doc(date).set({scheduleId:schId},{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));renderAttendStat(date);renderSignbook(date);}
+function renderSignbookFromUI(){const date=document.getElementById('attendDate').value;if(date){renderAttendStat(date);renderSignbook(date);}}
+
+function renderAttendStat(date){
+  const stat=document.getElementById('attendStat');
+  const rec=attendance[date]||{};const schId=rec.scheduleId||document.getElementById('attendSchedule').value;
+  const sch=schId?schedules.find(s=>s.id===schId):null;
+  const gid=document.getElementById('attendGroup').value;
+  const g=gid?groups.find(x=>x.id===gid):null;
+  let activeM=members.filter(m=>m.status==='활동중');
+  if(g)activeM=activeM.filter(m=>(g.memberIds||[]).includes(m.id));
+  const byM=rec.byMember||{},sigs=rec.signatures||{};
+  const pN=activeM.filter(m=>byM[m.id]==='present').length,lN=activeM.filter(m=>byM[m.id]==='late').length,aN=activeM.filter(m=>byM[m.id]==='absent').length,eN=activeM.filter(m=>byM[m.id]==='excused').length,sN=activeM.filter(m=>sigs[m.id]).length;
+  const groupLabel=g?` [${g.name}]`:'';
+  stat.innerHTML=`<span>${sch?esc(sch.title):'서명부'}${groupLabel} · ${dateFmtKr(date)}</span><span class="as-val">대상 ${activeM.length}명</span><span>출석 <span class="as-val">${pN}</span></span><span>지각 <span class="as-val">${lN}</span></span><span>결석 <span class="as-val">${aN}</span></span><span>사유결석 <span class="as-val">${eN}</span></span><span>서명완료 <span class="as-val">${sN}</span></span>`;
+}
+
+function setAttendStatus(date,memberId,status){
+  if(!attendance[date])attendance[date]={scheduleId:document.getElementById('attendSchedule').value,byMember:{},signatures:{}};
+  const cur=attendance[date].byMember[memberId];
+  let fv;
+  if(cur===status){delete attendance[date].byMember[memberId];fv=firebase.firestore.FieldValue.delete();}
+  else{attendance[date].byMember[memberId]=status;fv=status;}
+  db.collection('attendance').doc(date).set({byMember:{[memberId]:fv}},{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));
+  renderAttendStat(date);renderSignbook(date);
+}
+
+function renderSignbook(date){
+  const con=document.getElementById('signbookContainer');
+  const gid=document.getElementById('attendGroup').value;
+  const g=gid?groups.find(x=>x.id===gid):null;
+  let activeM=members.filter(m=>m.status==='활동중');
+  if(g)activeM=activeM.filter(m=>(g.memberIds||[]).includes(m.id));
+  activeM=activeM.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+
+  const schId=(attendance[date]||{}).scheduleId||document.getElementById('attendSchedule').value;
+  const sch=schId?schedules.find(s=>s.id===schId):null;
+  const rec=attendance[date]||{byMember:{},signatures:{}};
+  const byM=rec.byMember||{},sigs=rec.signatures||{};
+
+  // 활동 유형 & 행사명 & 반 이름
+  const actType=document.getElementById('attendActType').value;
+  const actName=document.getElementById('attendActName').value.trim();
+  const groupName=g?g.name:'';
+  // 날짜 포맷 MM.DD
+  const dateMMDD=date?date.slice(5).replace('-','.'):'';
+  // 헤더 제목: "행사명 [반이름(날짜)]" 또는 "행사명 [날짜]"
+  const classLabel=groupName?`[${groupName}(${dateMMDD})]`:`[${dateMMDD}]`;
+  const headerTitle=actName?`"${actName}" ${classLabel}`:`${actType} ${classLabel}`;
+
+  if(activeM.length===0){con.innerHTML=`<div style="text-align:center;padding:40px;color:var(--gray3);font-size:13px">해당 반에 구성원이 없습니다.<br>반 관리에서 구성원을 추가해주세요.</div>`;return;}
+
+  const rows=activeM.map((m,i)=>{
+    const sig=sigs[m.id]||'';
+    const hasSig=!!sig;
+    const schoolShort=(m.school||'').replace('초등학교','초');
+    const gradeShort=(m.grade||'').replace('초등 ','').replace('학년','');
+    return `<tr class="${hasSig?'signed-row':''}">
+      <td style="text-align:center">${i+1}</td>
+      <td style="text-align:center">${esc(m.name)}</td>
+      <td style="text-align:center">${esc(schoolShort)} / ${gradeShort}</td>
+      <td class="sb-sig-cell" onclick="openSignPad('${date}','${m.id}','${esc(m.name)}')">${sig?`<img src="${sig}" alt="서명">`:`<span class="sig-ph">클릭</span>`}</td>
+    </tr>`;
+  }).join('');
+
+  con.innerHTML=`<div class="signbook">
+    <div class="sb-top-header">
+      <div class="sb-main-title-block">
+        <div class="sb-year-prog">${esc(settings.year||'2026')} ${esc(settings.programName||'방과후아카데미')} 「나라찬」 ${esc(actType)}</div>
+        <div class="sb-title">${esc(headerTitle)}</div>
+      </div>
+      <div class="sb-logo-area"><img class="sb-logo-img" src="data:image/png;base64,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" alt="청소년방과후아카데미"></div>
+    </div>
+    <div class="sb-info-section">
+      <div class="sb-info"><strong>일시:</strong> ${dateFmtKr(date)}${sch&&sch.time?' '+esc(sch.time):''} &nbsp;&nbsp; <strong>장소:</strong> ${sch&&sch.location?esc(sch.location):esc(settings.orgName)||''}</div>
+    </div>
+    <table class="sb-table">
+      <colgroup><col style="width:28px"><col style="width:56px"><col style="width:90px"><col style="width:80px"></colgroup>
+      <thead><tr>
+        <th>순 번</th><th>이 름</th><th>학교 / 학년</th><th>서 명</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="sb-org-footer">${esc(settings.orgName)}</div>
+  </div>`;
+}
+
+function clearAllSignatures(){const date=document.getElementById('attendDate').value;if(!date)return;if(!confirm('이 날의 모든 서명과 출석을 초기화할까요?'))return;const scheduleId=(attendance[date]||{}).scheduleId||'';if(attendance[date]){attendance[date].signatures={};attendance[date].byMember={};}db.collection('attendance').doc(date).set({scheduleId,byMember:{},signatures:{}}).catch(err=>toast('저장 실패: '+err.message,'error'));renderSignbook(date);renderAttendStat(date);toast('초기화 완료');}
+
+// ── 서명패드 ──
+let _signCtx=null,_drawing=false,_sDate='',_sMId='';
+function openSignPad(date,memberId,name){
+  _sDate=date;_sMId=memberId;
+  document.getElementById('signPadName').textContent=name;
+  document.getElementById('signSaveDefaultWrap').style.display='block';
+  const mm=members.find(x=>x.id===memberId);
+  const hasSaved=mm&&mm.defaultSign;
+  document.getElementById('signSaveDefault').checked=!!hasSaved;
+  document.getElementById('signPadModal').classList.add('show');
+  setTimeout(()=>{initSignCanvas();if(hasSaved)preloadSign(mm.defaultSign);},80);
+}
+function initSignCanvas(){const canvas=document.getElementById('signCanvas'),wrap=document.getElementById('signCanvasWrap');wrap.classList.remove('has-drawing');const r=canvas.getBoundingClientRect();canvas.width=r.width||400;canvas.height=r.height||120;_signCtx=canvas.getContext('2d');_signCtx.clearRect(0,0,canvas.width,canvas.height);_signCtx.strokeStyle='#111';_signCtx.lineWidth=2;_signCtx.lineCap='round';_signCtx.lineJoin='round';const getPos=e=>{const rr=canvas.getBoundingClientRect(),src=e.touches?e.touches[0]:e;return{x:(src.clientX-rr.left)*(canvas.width/rr.width),y:(src.clientY-rr.top)*(canvas.height/rr.height)};};canvas.onmousedown=canvas.ontouchstart=e=>{e.preventDefault();_drawing=true;const p=getPos(e);_signCtx.beginPath();_signCtx.moveTo(p.x,p.y);wrap.classList.add('has-drawing');};canvas.onmousemove=canvas.ontouchmove=e=>{if(!_drawing)return;e.preventDefault();const p=getPos(e);_signCtx.lineTo(p.x,p.y);_signCtx.stroke();};canvas.onmouseup=canvas.ontouchend=()=>{_drawing=false;};}
+function preloadSign(dataUrl){
+  const canvas=document.getElementById('signCanvas');
+  const wrap=document.getElementById('signCanvasWrap');
+  if(!canvas||!dataUrl)return;
+  const img=new Image();
+  img.onload=()=>{
+    if(!_signCtx&&canvas){_signCtx=canvas.getContext('2d');}
+    if(_signCtx){
+      _signCtx.clearRect(0,0,canvas.width,canvas.height);
+      // center the signature image
+      const scale=Math.min(canvas.width/img.width,canvas.height/img.height,1);
+      const x=(canvas.width-img.width*scale)/2,y=(canvas.height-img.height*scale)/2;
+      _signCtx.drawImage(img,x,y,img.width*scale,img.height*scale);
+      wrap.classList.add('has-drawing');
+    }
+  };
+  img.src=dataUrl;
+}
+function clearSignCanvas(){if(!_signCtx)return;const c=document.getElementById('signCanvas');_signCtx.clearRect(0,0,c.width,c.height);document.getElementById('signCanvasWrap').classList.remove('has-drawing');}
+// ── 목록에서 대표서명 등록 ──
+function openListSignPad(memberId,name){
+  _sDate='__list__';_sMId=memberId;
+  document.getElementById('signPadName').textContent=name;
+  document.getElementById('signSaveDefaultWrap').style.display='none';
+  document.getElementById('signSaveDefault').checked=true;
+  document.getElementById('signPadModal').classList.add('show');
+  const mm=members.find(x=>x.id===memberId);
+  const hasSaved=mm&&mm.defaultSign;
+  setTimeout(()=>{initSignCanvas();if(hasSaved)preloadSign(mm.defaultSign);},80);
+}
+
+function saveSignature(){
+  if(!document.getElementById('signCanvasWrap').classList.contains('has-drawing')){toast('서명을 먼저 해주세요','warn');return;}
+  const dataUrl=document.getElementById('signCanvas').toDataURL('image/png');
+  const mm=members.find(x=>x.id===_sMId);
+  if(_sDate==='__list__'){
+    if(mm){mm.defaultSign=dataUrl;}
+    db.collection('members').doc(_sMId).set({defaultSign:dataUrl},{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));
+    closeSignPad();renderList();toast('✅ 대표서명이 저장되었습니다');return;
+  }
+  if(!attendance[_sDate])attendance[_sDate]={scheduleId:document.getElementById('attendSchedule').value,byMember:{},signatures:{}};
+  if(!attendance[_sDate].signatures)attendance[_sDate].signatures={};
+  attendance[_sDate].signatures[_sMId]=dataUrl;
+  if(!attendance[_sDate].byMember[_sMId])attendance[_sDate].byMember[_sMId]='present';
+  db.collection('attendance').doc(_sDate).set({signatures:{[_sMId]:dataUrl},byMember:{[_sMId]:attendance[_sDate].byMember[_sMId]}},{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));
+  if(document.getElementById('signSaveDefault').checked&&mm){mm.defaultSign=dataUrl;db.collection('members').doc(_sMId).set({defaultSign:dataUrl},{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));}
+  closeSignPad();renderSignbook(_sDate);renderAttendStat(_sDate);toast('✅ 서명 저장 완료');
+}
+function closeSignPad(){closeModal('signPadModal');_signCtx=null;_drawing=false;}
+
+// ── 태블릿 ──
+function openTabletMode(){
+  const date=document.getElementById('attendDate').value;
+  const gid=document.getElementById('attendGroup').value;
+  const g=gid?groups.find(x=>x.id===gid):null;
+  const sch=schedules.find(s=>s.id===((attendance[date]||{}).scheduleId||document.getElementById('attendSchedule').value));
+  document.getElementById('tmHeaderTitle').textContent=`✍️ ${sch?sch.title:'서명부'}${g?' ['+g.name+']':''}`;
+  renderTabletList(date);document.getElementById('tabletMode').classList.add('show');
+}
+function closeTabletMode(){document.getElementById('tabletMode').classList.remove('show');}
+function renderTabletList(date){
+  const gid=document.getElementById('attendGroup').value;
+  const g=gid?groups.find(x=>x.id===gid):null;
+  let activeM=members.filter(m=>m.status==='활동중');
+  if(g)activeM=activeM.filter(m=>(g.memberIds||[]).includes(m.id));
+  activeM=activeM.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const sigs=(attendance[date]||{}).signatures||{};
+  const signed=activeM.filter(m=>sigs[m.id]).length;
+  document.getElementById('tabletSummary').textContent=`서명 완료: ${signed} / ${activeM.length}명`;
+  document.getElementById('tabletList').innerHTML=activeM.map(m=>`<button class="tablet-card${sigs[m.id]?' signed':''}" onclick="tabletSign('${date}','${m.id}','${esc(m.name)}')"><div class="tc-name">${esc(m.name)}</div><div class="tc-meta">${esc((m.school||'').replace('초등학교','초'))} ${esc(m.grade||'')}</div><div class="tc-status">${sigs[m.id]?'✅ 서명 완료':'⏳ 서명 필요'}</div></button>`).join('');
+}
+function tabletSign(date,memberId,name){openSignPad(date,memberId,name);const orig=window.saveSignature;window.saveSignature=function(){orig();renderTabletList(date);window.saveSignature=orig;};}
+
+// ── 나라콩 상세패널 탭 ──
+function renderBeanDetailPanel(id){
+  const m=members.find(x=>x.id===id); if(!m)return;
+  const myTx=[...beanTx].filter(t=>t.memberId===id).sort((a,b)=>b.date.localeCompare(a.date));
+  const myJobHist=[...jobHistory].filter(t=>t.memberId===id).sort((a,b)=>b.date.localeCompare(a.date));
+  const balance=getBeanBalance(id);
+  const myJob=jobs.find(j=>(j.memberIds||[]).includes(id));
+  const el=document.getElementById('dt-bean'); if(!el)return;
+  el.innerHTML=`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;flex-wrap:wrap;gap:6px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div>
+        <div style="font-size:10px;color:var(--gray3);">현재 직업</div>
+        <div>${myJob?`<span class="bean-job-badge">${esc(myJob.name)}</span> <span style="font-size:11px;color:var(--or1);font-weight:700">월급 ${myJob.wage}💰/월</span>`:'<span style="color:var(--gray3);font-size:11px">미배정</span>'}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="text-align:right;">
+        <div style="font-size:10px;color:var(--gray3);">보유 나라콩</div>
+        <div class="bean-val" style="font-size:16px;">${balance}💰</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px;">
+        <button class="btn btn-xs" style="color:var(--green);border-color:#a0d0b0" onclick="openBeanTxFormFor('${id}','plus')">+지급</button>
+        <button class="btn btn-xs btn-danger" onclick="openBeanTxFormFor('${id}','minus')">-차감</button>
+      </div>
+    </div>
+  </div>
+  <!-- 서브탭 -->
+  <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:6px;">
+    <button onclick="showBeanSubTab('tx','${id}')" id="bsub-tx-${id}" style="padding:3px 10px;border:none;border-bottom:2px solid var(--or1);background:none;font-size:11px;font-weight:700;color:var(--or1);cursor:pointer;font-family:inherit;">💰 나라콩 거래</button>
+    <button onclick="showBeanSubTab('job','${id}')" id="bsub-job-${id}" style="padding:3px 10px;border:none;border-bottom:2px solid transparent;background:none;font-size:11px;color:var(--gray4);cursor:pointer;font-family:inherit;">🏷 직업 이력</button>
+  </div>
+  <!-- 거래 내역 -->
+  <div id="bsub-body-tx-${id}" class="tx-list">
+    ${myTx.slice(0,30).map(t=>`
+    <div class="tx-item">
+      <span class="tx-date">${t.date||''}</span>
+      <span class="tx-desc">${esc(t.memo||'-')}</span>
+      <span class="tx-amount ${t.type==='plus'?'plus':'minus'}">${t.type==='plus'?'+':'-'}${t.amount}💰</span>
+    </div>`).join('')||'<div style="color:var(--gray3);font-size:11px;padding:8px 0;">거래 내역 없음</div>'}
+  </div>
+  <!-- 직업 이력 -->
+  <div id="bsub-body-job-${id}" class="tx-list" style="display:none;">
+    ${myJobHist.slice(0,30).map(h=>`
+    <div class="tx-item">
+      <span class="tx-date">${h.date||''}</span>
+      <span class="tx-desc"><span class="bean-job-badge">${esc(h.jobName||'-')}</span></span>
+      <span class="tx-amount" style="color:${h.action==='취직'?'var(--green)':'var(--gray3)'};font-weight:700;">${h.action==='취직'?'▶ 취직':'◀ 퇴직'}</span>
+    </div>`).join('')||'<div style="color:var(--gray3);font-size:11px;padding:8px 0;">직업 이력 없음</div>'}
+  </div>`;
+}
+
+function showBeanSubTab(tab,id){
+  const txBody=document.getElementById(`bsub-body-tx-${id}`);
+  const jobBody=document.getElementById(`bsub-body-job-${id}`);
+  const txBtn=document.getElementById(`bsub-tx-${id}`);
+  const jobBtn=document.getElementById(`bsub-job-${id}`);
+  if(!txBody||!jobBody)return;
+  if(tab==='tx'){
+    txBody.style.display='';jobBody.style.display='none';
+    txBtn.style.borderBottomColor='var(--or1)';txBtn.style.color='var(--or1)';txBtn.style.fontWeight='700';
+    jobBtn.style.borderBottomColor='transparent';jobBtn.style.color='var(--gray4)';jobBtn.style.fontWeight='400';
+  } else {
+    txBody.style.display='none';jobBody.style.display='';
+    jobBtn.style.borderBottomColor='var(--or1)';jobBtn.style.color='var(--or1)';jobBtn.style.fontWeight='700';
+    txBtn.style.borderBottomColor='transparent';txBtn.style.color='var(--gray4)';txBtn.style.fontWeight='400';
+  }
+}
+
+function getBeanBalance(memberId){
+  return beanTx.filter(t=>t.memberId===memberId).reduce((s,t)=>t.type==='plus'?s+t.amount:s-t.amount,0);
+}
+function jUid(){return 'j_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);}
+function jhUid(){return 'jh_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);}
+function txUid(){return 'tx_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);}
+
+function openJobForm(id){
+  document.getElementById('jobId').value='';
+  document.getElementById('jobName').value='';
+  document.getElementById('jobWage').value='';
+  document.getElementById('jobDesc').value='';
+  document.getElementById('jobModalTitle').textContent='🏷 직업 추가';
+  const cur=id?jobs.find(x=>x.id===id):null;
+  if(cur){
+    document.getElementById('jobModalTitle').textContent='🏷 직업 수정';
+    document.getElementById('jobId').value=cur.id;
+    document.getElementById('jobName').value=cur.name||'';
+    document.getElementById('jobWage').value=cur.wage||0;
+    document.getElementById('jobDesc').value=cur.desc||'';
+  }
+  const picker=document.getElementById('jobMemberPicker');
+  const curIds=cur?cur.memberIds||[]:[];
+  const active=members.filter(m=>m.status==='활동중').sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  picker.innerHTML=active.map(m=>{
+    const otherJob=jobs.find(j=>j.id!==(id||'__new__')&&(j.memberIds||[]).includes(m.id));
+    return `<div onclick="this.classList.toggle('on')" data-id="${m.id}"
+      class="etag${curIds.includes(m.id)?' on':''}" style="padding:3px 8px;font-size:11px;margin:1px;"
+      title="${otherJob?'현재: '+otherJob.name:''}">
+      ${esc(m.name)}${otherJob?` <span style='font-size:9px;opacity:.7'>(${esc(otherJob.name)})</span>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('jobModal').classList.add('show');
+}
+
+function saveJob(){
+  const name=document.getElementById('jobName').value.trim();
+  const wage=parseInt(document.getElementById('jobWage').value)||0;
+  if(!name){toast('직업 이름을 입력해주세요','warn');return;}
+  const id=document.getElementById('jobId').value||jUid();
+  const desc=document.getElementById('jobDesc').value.trim();
+  const newMemberIds=[...document.querySelectorAll('#jobMemberPicker .etag.on')].map(el=>el.dataset.id);
+  const today=todayISO();
+  // 직업 변경 이력 기록
+  // 이 직업에서 빠지는 사람 → 이력 기록
+  const prevJob=jobs.find(x=>x.id===id);
+  const prevMembers=prevJob?prevJob.memberIds||[]:[];
+  const removed=prevMembers.filter(mid=>!newMemberIds.includes(mid));
+  const added=newMemberIds.filter(mid=>!prevMembers.includes(mid));
+  const newHistEntries=[];
+  removed.forEach(mid=>{const h={id:'jh_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),memberId:mid,jobId:id,jobName:name,action:'퇴직',date:today};jobHistory.push(h);newHistEntries.push(h);});
+  added.forEach(mid=>{
+    jobs.forEach(j=>{if(j.id!==id&&(j.memberIds||[]).includes(mid)){const h={id:'jh_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),memberId:mid,jobId:j.id,jobName:j.name,action:'퇴직',date:today};jobHistory.push(h);newHistEntries.push(h);}});
+    const h={id:'jh_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),memberId:mid,jobId:id,jobName:name,action:'취직',date:today};jobHistory.push(h);newHistEntries.push(h);
+  });
+  // 다른 직업에서 이 직업 배정자 제거
+  jobs.forEach(j=>{if(j.id!==id)j.memberIds=(j.memberIds||[]).filter(mid=>!newMemberIds.includes(mid));});
+  const idx=jobs.findIndex(x=>x.id===id);
+  const j={id,name,wage,desc,memberIds:newMemberIds};
+  if(idx>=0)jobs[idx]=j;else jobs.push(j);
+  {
+    const batch=db.batch();
+    batch.set(db.collection('jobs').doc(id), j);
+    jobs.forEach(jj=>{ if(jj.id!==id) batch.set(db.collection('jobs').doc(jj.id), jj); });
+    newHistEntries.forEach(h=>batch.set(db.collection('jobHistory').doc(h.id), h));
+    batch.commit().catch(err=>toast('저장 실패: '+err.message,'error'));
+  }
+  closeModal('jobModal');renderJobList();renderBeanList();
+  if(selectedMemberId)renderBeanDetailPanel(selectedMemberId);
+  toast(`✅ "${name}" 직업 저장 완료`);
+}
+
+function deleteJob(id){
+  const j=jobs.find(x=>x.id===id);if(!j)return;
+  if(!confirm(`"${j.name}" 직업을 삭제할까요?`))return;
+  jobs=jobs.filter(x=>x.id!==id);
+  db.collection('jobs').doc(id).delete().catch(err=>toast('삭제 실패: '+err.message,'error'));
+  renderJobList();renderBeanList();toast('🗑 삭제됨');
+}
+
+function renderJobList(){
+  const con=document.getElementById('jobListPanel');if(!con)return;
+  if(jobs.length===0){con.innerHTML=`<div style="text-align:center;padding:24px;color:var(--gray3);font-size:12px">직업이 없습니다.<br>위 [+ 추가]를 눌러주세요.</div>`;return;}
+  con.innerHTML=jobs.map(j=>{
+    const cnt=(j.memberIds||[]).length;
+    return `<div class="job-card${selectedJobId===j.id?' selected':''}" onclick="selectedJobId='${j.id}';renderJobList();renderBeanList();">
+      <div style="flex:1">
+        <div class="job-name">${esc(j.name)}</div>
+        ${j.desc?`<div style="font-size:10px;color:var(--gray3)">${esc(j.desc)}</div>`:''}
+        <div style="font-size:10px;color:var(--gray3);margin-top:2px;">${cnt}명 배정</div>
+      </div>
+      <div style="text-align:right;margin-right:6px">
+        <div class="job-wage">${j.wage}💰</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <button class="btn btn-xs" onclick="event.stopPropagation();openJobForm('${j.id}')">수정</button>
+        <button class="btn btn-xs btn-danger" onclick="event.stopPropagation();deleteJob('${j.id}')">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderBeanList(){
+  const con=document.getElementById('beanListPanel');if(!con)return;
+  const active=members.filter(m=>m.status==='활동중').sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const totalBeans=active.reduce((s,m)=>s+getBeanBalance(m.id),0);
+  const sumEl=document.getElementById('beanTotalLabel');
+  if(sumEl)sumEl.textContent=`전체 ${totalBeans}💰 유통 중`;
+  const sumEl2=document.getElementById('narakongSummary');
+  if(sumEl2)sumEl2.textContent=`청소년 ${active.length}명 · 직업 ${jobs.length}개`;
+  if(active.length===0){con.innerHTML=`<div style="text-align:center;padding:40px;color:var(--gray3)">활동중인 청소년이 없습니다.</div>`;return;}
+  const rows=active.map((m,i)=>{
+    const myJob=jobs.find(j=>(j.memberIds||[]).includes(m.id));
+    const balance=getBeanBalance(m.id);
+    const myTx=[...beanTx].filter(t=>t.memberId===m.id).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,3);
+    return `<tr>
+      <td style="text-align:center;color:var(--gray3)">${i+1}</td>
+      <td style="font-weight:700">${esc(m.name)}</td>
+      <td style="text-align:center">${esc((m.grade||'').replace('초등 ',''))}</td>
+      <td style="text-align:center">${myJob?`<span class="bean-job-badge">${esc(myJob.name)}</span>`:'<span style="color:var(--gray3)">미배정</span>'}</td>
+      <td style="text-align:center"><span class="bean-val">${balance}</span>💰</td>
+      <td style="font-size:10px;color:var(--gray4)">${myTx.map(t=>`<span style="color:${t.type==='plus'?'var(--green)':'var(--danger)'}">${t.type==='plus'?'+':'-'}${t.amount}</span><span style="color:var(--gray3)"> ${esc(t.memo||'')} ${t.date||''}</span>`).join(' | ')||'<span style="color:var(--gray3)">-</span>'}</td>
+      <td style="text-align:center"><div style="display:flex;flex-direction:column;gap:2px;align-items:stretch;">
+        <button class="btn btn-xs" style="color:var(--green);border-color:#a0d0b0;width:100%;margin-bottom:2px" onclick="openBeanTxFormFor('${m.id}','plus')">+지급</button>
+        <button class="btn btn-xs btn-danger" style="width:100%;margin-bottom:2px" onclick="openBeanTxFormFor('${m.id}','minus')">-차감</button>
+        <button class="btn btn-xs" style="color:var(--blue);border-color:#b0c8f0;width:100%;margin-bottom:2px" onclick="openJobHistModal('${m.id}','${esc(m.name)}')">이력</button>
+        <button class="btn btn-xs" style="color:var(--danger);border-color:#f09090;width:100%;" onclick="confirmResetMemberBean('${m.id}','${esc(m.name)}')">초기화</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  con.innerHTML=`<table class="bean-table"><thead><tr>
+    <th style="width:30px">No.</th><th style="width:66px">이름</th><th style="width:44px">학년</th>
+    <th style="width:90px">현재 직업</th><th style="width:76px">보유 나라콩</th>
+    <th>최근 거래</th><th style="width:72px">관리</th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// ── 나라콩 초기화 ──
+function confirmResetAllBean(){
+  // 확인 모달 띄우기
+  const modal=document.createElement('div');
+  modal.className='modal show'; modal.id='resetBeanTempModal';
+  modal.innerHTML=`<div class="modal-win sm">
+    <div class="modal-titlebar" style="background:linear-gradient(to bottom,#e05050,var(--danger));"><span>🗑 전체 나라콩 초기화</span><button class="modal-close-x" onclick="document.getElementById('resetBeanTempModal').remove()">✕</button></div>
+    <div class="modal-body">
+      <div style="background:var(--danger-l);border:1px solid #f09090;padding:10px 12px;border-radius:3px;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;color:var(--danger);margin-bottom:4px;">⚠️ 전체 나라콩 거래 내역 초기화</div>
+        <div style="font-size:11px;color:#7a1010;line-height:1.7;">모든 청소년의 나라콩 지급·차감 내역이 삭제됩니다.<br>이 작업은 되돌릴 수 없습니다.</div>
+      </div>
+      <div style="font-size:11px;color:var(--gray4);margin-bottom:10px;">
+        현재 거래 내역: <strong style="color:var(--danger)">${beanTx.length}건</strong>
+      </div>
+      <div style="font-size:11px;margin-bottom:8px;font-weight:700;color:var(--gray5);">초기화 범위 선택</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 10px;border:1px solid var(--border);border-radius:3px;background:#fff;">
+          <input type="radio" name="resetBeanRange" value="all" checked style="accent-color:var(--danger);">
+          <span>전체 청소년 나라콩 초기화</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 10px;border:1px solid var(--border);border-radius:3px;background:#fff;">
+          <input type="radio" name="resetBeanRange" value="period" style="accent-color:var(--danger);">
+          <span>특정 기간 거래 내역만 삭제</span>
+        </label>
+        <div id="periodInputRow" style="display:none;padding:6px 10px;background:var(--gray0);border:1px solid var(--border);border-radius:3px;">
+          <div style="font-size:11px;color:var(--gray4);margin-bottom:5px;">삭제할 기간</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="date" id="resetFrom" style="padding:3px 6px;border:1px solid var(--border-d);font-size:11px;font-family:inherit;">
+            <span style="font-size:11px;color:var(--gray4)">~</span>
+            <input type="date" id="resetTo" style="padding:3px 6px;border:1px solid var(--border-d);font-size:11px;font-family:inherit;">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('resetBeanTempModal').remove()">취소</button>
+      <button class="btn" style="background:linear-gradient(to bottom,#e05050,var(--danger));color:#fff;border-color:#a00;" onclick="execResetAllBean()">🗑 초기화 실행</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  // 라디오 변경 시 기간 입력 표시
+  modal.querySelectorAll('input[name="resetBeanRange"]').forEach(r=>{
+    r.addEventListener('change',()=>{
+      document.getElementById('periodInputRow').style.display=r.value==='period'?'block':'none';
+    });
+  });
+}
+
+function execResetAllBean(){
+  const range=document.querySelector('input[name="resetBeanRange"]:checked')?.value||'all';
+  if(range==='period'){
+    const from=document.getElementById('resetFrom').value;
+    const to=document.getElementById('resetTo').value;
+    if(!from||!to){toast('기간을 모두 입력해주세요','warn');return;}
+    const before=beanTx.length;
+    beanTx=beanTx.filter(t=>!(t.date>=from&&t.date<=to));
+    const removed=before-beanTx.length;
+    db.collection('beanTx').where('date','>=',from).where('date','<=',to).get().then(snap=>{
+      const batch=db.batch(); snap.docs.forEach(d=>batch.delete(d.ref)); return batch.commit();
+    }).catch(err=>toast('삭제 실패: '+err.message,'error'));
+    document.getElementById('resetBeanTempModal').remove();
+    renderBeanList();if(selectedMemberId)renderBeanDetailPanel(selectedMemberId);
+    toast(`🗑 ${from}~${to} 기간 거래 ${removed}건 삭제 완료`);
+  } else {
+    beanTx=[];
+    batchDeleteAll('beanTx').catch(err=>toast('삭제 실패: '+err.message,'error'));
+    document.getElementById('resetBeanTempModal').remove();
+    renderBeanList();if(selectedMemberId)renderBeanDetailPanel(selectedMemberId);
+    toast('🗑 전체 나라콩 거래 내역이 초기화됐습니다');
+  }
+}
+
+function confirmResetMemberBean(memberId, name){
+  const myTx=beanTx.filter(t=>t.memberId===memberId);
+  const balance=getBeanBalance(memberId);
+  const modal=document.createElement('div');
+  modal.className='modal show'; modal.id='resetMemberBeanModal';
+  modal.innerHTML=`<div class="modal-win sm">
+    <div class="modal-titlebar" style="background:linear-gradient(to bottom,#e05050,var(--danger));"><span>🗑 개인 나라콩 초기화 — ${esc(name)}</span><button class="modal-close-x" onclick="document.getElementById('resetMemberBeanModal').remove()">✕</button></div>
+    <div class="modal-body">
+      <div style="background:var(--danger-l);border:1px solid #f09090;padding:10px 12px;border-radius:3px;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;color:var(--danger);margin-bottom:4px;">⚠️ ${esc(name)} 님의 나라콩 초기화</div>
+        <div style="font-size:11px;color:#7a1010;line-height:1.7;">이 청소년의 모든 거래 내역이 삭제됩니다.<br>이 작업은 되돌릴 수 없습니다.</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;background:var(--gray0);padding:8px 12px;border-radius:3px;margin-bottom:10px;font-size:12px;">
+        <span>현재 보유 나라콩</span><span style="font-weight:700;color:var(--or1)">${balance}💰</span>
+      </div>
+      <div style="font-size:11px;color:var(--gray4);margin-bottom:10px;">거래 내역: <strong style="color:var(--danger)">${myTx.length}건</strong></div>
+      <div style="font-size:11px;margin-bottom:8px;font-weight:700;color:var(--gray5);">초기화 범위</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 10px;border:1px solid var(--border);border-radius:3px;background:#fff;">
+          <input type="radio" name="resetMRange" value="all" checked style="accent-color:var(--danger);">
+          <span>전체 거래 내역 삭제</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 10px;border:1px solid var(--border);border-radius:3px;background:#fff;">
+          <input type="radio" name="resetMRange" value="period" style="accent-color:var(--danger);">
+          <span>특정 기간 거래 내역만 삭제</span>
+        </label>
+        <div id="mPeriodRow" style="display:none;padding:6px 10px;background:var(--gray0);border:1px solid var(--border);border-radius:3px;">
+          <div style="font-size:11px;color:var(--gray4);margin-bottom:5px;">삭제할 기간</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="date" id="mResetFrom" style="padding:3px 6px;border:1px solid var(--border-d);font-size:11px;font-family:inherit;">
+            <span style="font-size:11px;color:var(--gray4)">~</span>
+            <input type="date" id="mResetTo" style="padding:3px 6px;border:1px solid var(--border-d);font-size:11px;font-family:inherit;">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('resetMemberBeanModal').remove()">취소</button>
+      <button class="btn" style="background:linear-gradient(to bottom,#e05050,var(--danger));color:#fff;border-color:#a00;" onclick="execResetMemberBean('${memberId}','${esc(name)}')">🗑 초기화 실행</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.querySelectorAll('input[name="resetMRange"]').forEach(r=>{
+    r.addEventListener('change',()=>{
+      document.getElementById('mPeriodRow').style.display=r.value==='period'?'block':'none';
+    });
+  });
+}
+
+function execResetMemberBean(memberId, name){
+  const range=document.querySelector('input[name="resetMRange"]:checked')?.value||'all';
+  const before=beanTx.length;
+  if(range==='period'){
+    const from=document.getElementById('mResetFrom').value;
+    const to=document.getElementById('mResetTo').value;
+    if(!from||!to){toast('기간을 모두 입력해주세요','warn');return;}
+    beanTx=beanTx.filter(t=>!(t.memberId===memberId&&t.date>=from&&t.date<=to));
+    const removed=before-beanTx.length;
+    db.collection('beanTx').where('memberId','==',memberId).get().then(snap=>{
+      const batch=db.batch();
+      snap.docs.forEach(d=>{const t=d.data(); if(t.date>=from&&t.date<=to) batch.delete(d.ref);});
+      return batch.commit();
+    }).catch(err=>toast('삭제 실패: '+err.message,'error'));
+    document.getElementById('resetMemberBeanModal').remove();
+    renderBeanList();if(selectedMemberId===memberId)renderBeanDetailPanel(memberId);
+    toast(`🗑 ${name} 님의 ${from}~${to} 거래 ${removed}건 삭제 완료`);
+  } else {
+    beanTx=beanTx.filter(t=>t.memberId!==memberId);
+    db.collection('beanTx').where('memberId','==',memberId).get().then(snap=>{
+      const batch=db.batch(); snap.docs.forEach(d=>batch.delete(d.ref)); return batch.commit();
+    }).catch(err=>toast('삭제 실패: '+err.message,'error'));
+    document.getElementById('resetMemberBeanModal').remove();
+    renderBeanList();if(selectedMemberId===memberId)renderBeanDetailPanel(memberId);
+    toast(`🗑 ${name} 님의 나라콩 내역이 초기화됐습니다`);
+  }
+}
+
+function openBeanTxForm(){
+  const sel=document.getElementById('txMemberId');
+  sel.innerHTML='<option value="">선택...</option>'+
+    members.filter(m=>m.status==='활동중').sort((a,b)=>(a.name||'').localeCompare(b.name||''))
+      .map(m=>`<option value="${m.id}">${esc(m.name)} (${esc(m.grade||'')}) — ${getBeanBalance(m.id)}💰</option>`).join('');
+  document.getElementById('txType').value='plus';
+  document.getElementById('txAmount').value='';
+  document.getElementById('txMemo').value='';
+  document.getElementById('beanTxModal').classList.add('show');
+}
+function openBeanTxFormFor(memberId,type='plus'){
+  openBeanTxForm();
+  document.getElementById('txMemberId').value=memberId;
+  document.getElementById('txType').value=type;
+}
+
+function saveBeanTx(){
+  const memberId=document.getElementById('txMemberId').value;
+  const type=document.getElementById('txType').value;
+  const amount=parseInt(document.getElementById('txAmount').value)||0;
+  const memo=document.getElementById('txMemo').value.trim();
+  if(!memberId){toast('청소년을 선택해주세요','warn');return;}
+  if(amount<=0){toast('수량을 입력해주세요','warn');return;}
+  // 음수 허용 - 잔액 제한 없음
+  const newTx={id:txUid(),memberId,type,amount,memo,date:todayISO()};
+  beanTx.push(newTx);
+  db.collection('beanTx').doc(newTx.id).set(newTx).catch(err=>toast('저장 실패: '+err.message,'error'));
+  closeModal('beanTxModal');renderBeanList();
+  if(selectedMemberId===memberId)renderBeanDetailPanel(memberId);
+  const m=members.find(x=>x.id===memberId);
+  toast(`✅ ${m?m.name:''}에게 ${type==='plus'?'+':'-'}${amount}💰 ${type==='plus'?'지급':'차감'}됨`);
+}
+
+function openJobHistModal(memberId, name){
+  const myJobHist=[...jobHistory].filter(t=>t.memberId===memberId).sort((a,b)=>b.date.localeCompare(a.date));
+  const myTx=[...beanTx].filter(t=>t.memberId===memberId).sort((a,b)=>b.date.localeCompare(a.date));
+  const balance=getBeanBalance(memberId);
+  const myJob=jobs.find(j=>(j.memberIds||[]).includes(memberId));
+  const modal=document.createElement('div');
+  modal.className='modal show';modal.id='jobHistTempModal';
+  modal.innerHTML=`<div class="modal-win" style="max-width:520px;">
+    <div class="modal-titlebar"><span>🏷 ${esc(name)} — 직업·나라콩 이력</span><button class="modal-close-x" onclick="document.getElementById('jobHistTempModal').remove()">✕</button></div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:8px 10px;background:var(--or4);border:1px solid #e0b870;border-radius:3px;">
+        <div><span style="font-size:10px;color:var(--gray3)">현재 직업</span><br>${myJob?`<span class="bean-job-badge">${esc(myJob.name)}</span> <strong style="color:var(--or1)">${myJob.wage}💰/월</strong>`:'<span style="color:var(--gray3)">미배정</span>'}</div>
+        <div style="text-align:right"><span style="font-size:10px;color:var(--gray3)">보유 나라콩</span><br><span class="bean-val" style="font-size:20px;">${balance}💰</span></div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--or1);margin-bottom:5px;border-bottom:1px solid var(--or3);padding-bottom:3px;">🏷 직업 이력</div>
+      <div class="tx-list" style="margin-bottom:14px;">${myJobHist.map(h=>`<div class="tx-item"><span class="tx-date">${h.date||''}</span><span class="tx-desc"><span class="bean-job-badge">${esc(h.jobName||'-')}</span></span><span class="tx-amount" style="color:${h.action==='취직'?'var(--green)':'var(--gray3)'};font-weight:700;">${h.action==='취직'?'▶ 취직':'◀ 퇴직'}</span></div>`).join('')||'<div style="color:var(--gray3);font-size:11px;padding:6px 0;">직업 이력 없음</div>'}</div>
+      <div style="font-size:11px;font-weight:700;color:var(--or1);margin-bottom:5px;border-bottom:1px solid var(--or3);padding-bottom:3px;">💰 나라콩 전체 거래 내역</div>
+      <div class="tx-list">${myTx.map(t=>`<div class="tx-item"><span class="tx-date">${t.date||''}</span><span class="tx-desc">${esc(t.memo||'-')}</span><span class="tx-amount ${t.type==='plus'?'plus':'minus'}">${t.type==='plus'?'+':'-'}${t.amount}💰</span></div>`).join('')||'<div style="color:var(--gray3);font-size:11px;padding:6px 0;">거래 내역 없음</div>'}</div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="document.getElementById('jobHistTempModal').remove()">닫기</button></div>
+  </div>`;
+  document.body.appendChild(modal);
+}
+
+function openPayWageModal(){
+  if(jobs.length===0){toast('등록된 직업이 없습니다','warn');return;}
+  // 메모 기본값: 이번 달
+  const mon=new Date().getMonth()+1;
+  document.getElementById('wagePayMemo').value=`${mon}월 월급`;
+  renderWageJobRows();
+  document.getElementById('payWageModal').classList.add('show');
+}
+
+function renderWageJobRows(){
+  const tbody=document.getElementById('wageJobRows');
+  if(!tbody)return;
+  const active=members.filter(m=>m.status==='활동중');
+  tbody.innerHTML=jobs.map(j=>{
+    const assigned=(j.memberIds||[]).filter(mid=>active.find(m=>m.id===mid));
+    const names=assigned.map(mid=>{const m=active.find(x=>x.id===mid);return m?m.name:'';}).filter(Boolean);
+    return `<tr id="wageRow_${j.id}">
+      <td style="padding:5px 8px;border-bottom:1px solid #ededea;border-right:1px solid #e8e8e8;text-align:center;">
+        <input type="checkbox" class="wage-job-chk" data-jid="${j.id}" checked
+          onchange="calcWagePreview()" style="accent-color:var(--or1);">
+      </td>
+      <td style="padding:5px 8px;border-bottom:1px solid #ededea;border-right:1px solid #e8e8e8;font-weight:700;">${esc(j.name)}</td>
+      <td style="padding:5px 8px;border-bottom:1px solid #ededea;border-right:1px solid #e8e8e8;text-align:center;color:var(--gray4);">${assigned.length}명</td>
+      <td style="padding:4px 6px;border-bottom:1px solid #ededea;border-right:1px solid #e8e8e8;text-align:center;">
+        <div style="display:flex;align-items:center;gap:3px;justify-content:center;">
+          <input type="number" class="wage-amt" data-jid="${j.id}" value="${j.wage}" min="0"
+            oninput="calcWagePreview()"
+            style="width:64px;padding:3px 5px;border:1px solid var(--border-d);font-size:12px;font-family:inherit;text-align:right;">
+          <span style="font-size:11px;color:var(--or1);">💰</span>
+        </div>
+      </td>
+      <td style="padding:5px 8px;border-bottom:1px solid #ededea;font-size:10px;color:var(--gray4);">
+        ${names.length?names.join(', '):'<span style="color:var(--gray3)">미배정</span>'}
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('wageCheckAll').checked=true;
+  calcWagePreview();
+}
+
+function toggleAllWageJobs(chk){
+  document.querySelectorAll('.wage-job-chk').forEach(c=>{c.checked=chk.checked;});
+  calcWagePreview();
+}
+
+function calcTaxForMember(wage){
+  // 세금 = 총월급*20% + 자릿세5 + 전기세4 + 수도세4 + 건강보험료2
+  const incomeTax = Math.floor(wage * 0.20);
+  const fixedTax  = 5 + 4 + 4 + 2; // 15
+  return incomeTax + fixedTax;
+}
+function calcTaxBreakdown(wage){
+  return {
+    incomeTax: Math.floor(wage * 0.20),
+    jariTax: 5, electricTax: 4, waterTax: 4, healthTax: 2,
+    total: Math.floor(wage * 0.20) + 15
+  };
+}
+function calcWagePreview(){
+  let totalBean=0,totalTax=0,totalPeople=0;
+  const active=members.filter(m=>m.status==='활동중');
+  const taxOn=document.getElementById('taxEnabled')?.checked!==false;
+  document.querySelectorAll('.wage-job-chk:checked').forEach(chk=>{
+    const jid=chk.dataset.jid;
+    const j=jobs.find(x=>x.id===jid);if(!j)return;
+    const amtEl=document.querySelector(`.wage-amt[data-jid="${jid}"]`);
+    const amt=amtEl?parseInt(amtEl.value)||0:j.wage;
+    const cnt=(j.memberIds||[]).filter(mid=>active.find(m=>m.id===mid)).length;
+    totalBean+=amt*cnt;
+    if(taxOn) totalTax+=calcTaxForMember(amt)*cnt;
+    totalPeople+=cnt;
+  });
+  const el=document.getElementById('wagePreviewTotal');
+  if(el)el.textContent=`${totalBean}💰 (${totalPeople}명)`;
+  const taxEl=document.getElementById('taxPreviewTotal');
+  if(taxEl)taxEl.textContent=`-${totalTax}💰`;
+  const netEl=document.getElementById('netPreviewTotal');
+  if(netEl)netEl.textContent=`${totalBean-totalTax}💰`;
+  const taxRow=document.getElementById('taxPreviewRow');
+  const netRow=document.getElementById('netPreviewRow');
+  if(taxRow)taxRow.style.display=taxOn?'flex':'none';
+  if(netRow)netRow.style.display=taxOn?'flex':'none';
+}
+
+function execPayWages(){
+  const memo=document.getElementById('wagePayMemo').value.trim()||`${new Date().getMonth()+1}월 월급`;
+  const active=members.filter(m=>m.status==='활동중');
+  const today=todayISO();
+  const taxOn=document.getElementById('taxEnabled')?.checked!==false;
+  let count=0,totalPaid=0,totalTax=0;
+  const newTxList=[];
+  const checkedJids=[...document.querySelectorAll('.wage-job-chk:checked')].map(c=>c.dataset.jid);
+  if(checkedJids.length===0){toast('지급할 직업을 선택해주세요','warn');return;}
+  checkedJids.forEach(jid=>{
+    const j=jobs.find(x=>x.id===jid);if(!j)return;
+    const amtEl=document.querySelector(`.wage-amt[data-jid="${jid}"]`);
+    const amt=amtEl?parseInt(amtEl.value)||0:j.wage;
+    if(amt<=0)return;
+    (j.memberIds||[]).forEach(mid=>{
+      if(!active.find(m=>m.id===mid))return;
+      // 월급 지급
+      const wTx={id:txUid(),memberId:mid,type:'plus',amount:amt,memo:`[${j.name}] ${memo}`,date:today};
+      beanTx.push(wTx);newTxList.push(wTx);
+      count++;totalPaid+=amt;
+      if(taxOn){
+        const tax=calcTaxForMember(amt);
+        const bd=calcTaxBreakdown(amt);
+        const tTx={id:txUid(),memberId:mid,type:'minus',amount:tax,
+          memo:`[세금] 소득세${bd.incomeTax}+자릿세${bd.jariTax}+전기세${bd.electricTax}+수도세${bd.waterTax}+건강보험료${bd.healthTax}`,date:today};
+        beanTx.push(tTx);newTxList.push(tTx);
+        totalTax+=tax;
+      }
+    });
+  });
+  if(count===0){toast('배정된 청소년이 없습니다','warn');return;}
+  if(newTxList.length){
+    const batch=db.batch();
+    newTxList.forEach(t=>batch.set(db.collection('beanTx').doc(t.id), t));
+    batch.commit().catch(err=>toast('저장 실패: '+err.message,'error'));
+  }
+  closeModal('payWageModal');renderBeanList();
+  if(selectedMemberId)renderBeanDetailPanel(selectedMemberId);
+  const taxMsg=taxOn?` (세금 총 ${totalTax}💰 차감)`:'';
+  toast(`💰 ${count}명에게 총 ${totalPaid}💰 지급 완료!${taxMsg}`);
+}
+
+// ── 대시보드 ──
+function renderDashboard(){
+  const active=members.filter(m=>m.status==='활동중').length,male=members.filter(m=>m.gender==='남').length,female=members.filter(m=>m.gender==='여').length;
+  const now=new Date(),thisMon=now.getMonth()+1,today2=todayISO();
+  const bdayThis=members.filter(m=>{const md=getMonthDay(m.birthdate);return md&&md.month===thisMon;});
+  const bdayToday=members.filter(m=>{const md=getMonthDay(m.birthdate);return md&&md.month===thisMon&&md.day===now.getDate();});
+  const upcomingSch=[...schedules].filter(s=>s.date>=today2).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5);
+  const gradeMap={};members.forEach(m=>{const k=m.grade||'미입력';gradeMap[k]=(gradeMap[k]||0)+1;});
+  const maxGrade=Math.max(...Object.values(gradeMap),1);
+  const gradeHtml=Object.entries(gradeMap).sort().map(([g,c])=>`<div class="sbar-item"><span class="sbar-label">${esc(g)}</span><div class="sbar"><div class="sbar-fill" style="width:${Math.round(c/maxGrade*100)}%"></div></div><span class="sbar-val">${c}</span></div>`).join('')||'<div style="color:var(--gray3);font-size:11px">데이터 없음</div>';
+  const upcomingHtml=upcomingSch.length>0?`<table class="grid-table" style="font-size:11px"><thead><tr><th style="width:80px">날짜</th><th style="width:60px">시간</th><th>활동 제목</th><th style="width:100px">장소</th><th style="width:80px">관리</th></tr></thead><tbody>`+upcomingSch.map(s=>{const isToday=s.date===today2;return `<tr style="${isToday?'background:var(--or4)':''}"><td style="text-align:center;${isToday?'font-weight:700;color:var(--or1)':'color:var(--gray4)'}">${s.date}</td><td style="text-align:center">${esc(s.time||'-')}</td><td style="font-weight:${isToday?'700':'400'}">${esc(s.title)}${isToday?' <span style="background:var(--or1);color:#fff;font-size:9px;padding:0 3px">오늘</span>':''}</td><td>${esc(s.location||'-')}</td><td style="text-align:center"><button class="btn btn-xs btn-or" onclick="goAttendWithSchedule('${s.date}','${s.id}')">서명부</button></td></tr>`;}).join('')+'</tbody></table>':`<div style="color:var(--gray3);font-size:11px;padding:10px;text-align:center">예정된 일정이 없습니다.</div>`;
+  const recentHtml=[...members].sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||'')).slice(0,5).map(m=>`<div class="dw-row">${m.photo?`<img src="${m.photo}" style="width:20px;height:26px;object-fit:cover;">`:'<span style="font-size:14px;color:#ccc">👤</span>'}<span style="font-weight:700;flex:1">${esc(m.name)}</span><span style="color:var(--gray3)">${esc(m.school||'')} ${esc(m.grade||'')}</span><button class="btn btn-xs" onclick="viewCard('${m.id}')">카드</button></div>`).join('')||'<div class="dw-row" style="color:var(--gray3)">등록된 청소년이 없습니다.</div>';
+  const bdayHtml=bdayThis.length>0?bdayThis.map(m=>{const md=getMonthDay(m.birthdate);const isTdy=md&&md.day===now.getDate();return `<div class="dw-row" style="${isTdy?'background:var(--or4)':''}"><span>${isTdy?'🎉':'🎂'}</span><span style="font-weight:700;flex:1">${esc(m.name)}</span><span style="color:var(--gray3)">${md?thisMon+'월 '+md.day+'일':''} ${isTdy?'오늘!':''}</span></div>`;}).join(''):`<div class="dw-row" style="color:var(--gray3)">이번 달 생일인 청소년이 없습니다.</div>`;
+  const beanTopHtml=(()=>{
+    const active=members.filter(m=>m.status==='활동중');
+    if(!active.length)return '<div class="dw-row" style="color:var(--gray3)">데이터 없음</div>';
+    return [...active].sort((a,b)=>getBeanBalance(b.id)-getBeanBalance(a.id)).slice(0,5).map(m=>{
+      const myJob=jobs.find(j=>(j.memberIds||[]).includes(m.id));
+      const bal=getBeanBalance(m.id);
+      return `<div class="dw-row"><span style="font-weight:700;flex:1">${esc(m.name)}</span>${myJob?`<span class="bean-job-badge" style="font-size:9px;margin-right:4px">${esc(myJob.name)}</span>`:''}<span style="font-weight:700;color:var(--or1)">${bal}💰</span></div>`;
+    }).join('');
+  })();
+  document.getElementById('dashboardContent').innerHTML=`
+    <div class="dash-cards">
+      <div class="dash-card primary"><div class="dc-label">전체 청소년</div><div class="dc-val">${members.length}명</div><div class="dc-sub">활동중 ${active}명</div></div>
+      <div class="dash-card"><div class="dc-label">👦 남자</div><div class="dc-val">${male}명</div><div class="dc-sub">${members.length?Math.round(male/members.length*100):0}%</div></div>
+      <div class="dash-card"><div class="dc-label">👧 여자</div><div class="dc-val">${female}명</div><div class="dc-sub">${members.length?Math.round(female/members.length*100):0}%</div></div>
+      <div class="dash-card"><div class="dc-label">📅 등록 일정</div><div class="dc-val">${schedules.length}건</div><div class="dc-sub">오늘 ${schedules.filter(s=>s.date===today2).length}건</div></div>
+      <div class="dash-card"><div class="dc-label">🎂 이번 달 생일</div><div class="dc-val">${bdayThis.length}명</div><div class="dc-sub">${thisMon}월 · 오늘 ${bdayToday.length}명</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+      <div class="dash-widget"><div class="dw-title">학년 분포</div>${gradeHtml}</div>
+      <div class="dash-widget" style="grid-column:span 2"><div class="dw-title">📅 다가오는 일정</div>${upcomingHtml}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+      <div class="dash-widget"><div class="dw-title">🆕 최근 등록 청소년</div>${recentHtml}</div>
+      <div class="dash-widget"><div class="dw-title">🎂 이번 달(${thisMon}월) 생일</div>${bdayHtml}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+      <div class="dash-widget"><div class="dw-title">💰 나라콩 TOP 5 <button class="btn btn-xs btn-or" onclick="switchTab('narakong')" style="float:right;margin-top:-1px">전체보기</button></div>${beanTopHtml}</div>
+      <div class="dash-widget"><div class="dw-title">🏷 현재 직업 현황 <button class="btn btn-xs btn-or" onclick="switchTab('narakong')" style="float:right;margin-top:-1px">관리</button></div>${jobs.length?jobs.map(j=>`<div class="dw-row"><span class="bean-job-badge">${esc(j.name)}</span><span style="flex:1;margin-left:6px;font-size:11px">${(j.memberIds||[]).map(id=>{const m=members.find(x=>x.id===id);return m?esc(m.name):'';}).filter(Boolean).join(', ')||'미배정'}</span><span style="color:var(--or1);font-weight:700">${j.wage}💰</span></div>`).join(''):'<div class="dw-row" style="color:var(--gray3)">등록된 직업 없음</div>'}</div>
+    </div>`;
+}
+
+// ── 통계 ──
+function renderStats(){
+  if(members.length===0){document.getElementById('statsContent').innerHTML='<div style="text-align:center;padding:40px;color:var(--gray3)">등록된 데이터가 없습니다.</div>';return;}
+  const gradeMap={},schoolMap={},intMap={};
+  members.forEach(m=>{const g=m.grade||'미입력';gradeMap[g]=(gradeMap[g]||0)+1;const s=m.school||'미입력';schoolMap[s]=(schoolMap[s]||0)+1;(m.interests||[]).forEach(t=>{intMap[t]=(intMap[t]||0)+1;});});
+  const mkBars=(map,maxV)=>Object.entries(map).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="sbar-item"><span class="sbar-label" title="${esc(k)}">${esc(k.length>8?k.slice(0,8)+'…':k)}</span><div class="sbar"><div class="sbar-fill" style="width:${Math.round(v/maxV*100)}%"></div></div><span class="sbar-val">${v}</span></div>`).join('');
+  const maxG=Math.max(...Object.values(gradeMap),1),maxS=Math.max(...Object.values(schoolMap),1),maxI=Math.max(...Object.values(intMap),1);
+
+  // 완료된 활동 통계
+  const completedSch=schedules.filter(s=>s.completed).sort((a,b)=>b.date.localeCompare(a.date));
+  const activeM=members.filter(m=>m.status==='활동중');
+  const totalM=activeM.length,maleM=activeM.filter(m=>m.gender==='남').length,femaleM=activeM.filter(m=>m.gender==='여').length;
+
+  const completedHTML=completedSch.length>0?`
+    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:6px;">
+      <thead><tr>
+        <th style="background:linear-gradient(to bottom,#f0ece4,#ddd8cc);border-bottom:2px solid var(--or1);border-right:1px solid var(--border);padding:5px 6px;text-align:center;width:30px">No.</th>
+        <th style="background:linear-gradient(to bottom,#f0ece4,#ddd8cc);border-bottom:2px solid var(--or1);border-right:1px solid var(--border);padding:5px 6px;font-weight:700;color:var(--gray5);">활동명</th>
+        <th style="background:linear-gradient(to bottom,#f0ece4,#ddd8cc);border-bottom:2px solid var(--or1);border-right:1px solid var(--border);padding:5px 6px;text-align:center;width:72px">날짜</th>
+        <th style="background:linear-gradient(to bottom,#f0ece4,#ddd8cc);border-bottom:2px solid var(--or1);border-right:1px solid var(--border);padding:5px 6px;text-align:center;width:130px">참여 인원</th>
+        <th style="background:linear-gradient(to bottom,#f0ece4,#ddd8cc);border-bottom:2px solid var(--or1);padding:5px 6px;text-align:center;width:80px">완료일</th>
+      </tr></thead>
+      <tbody>
+        ${completedSch.map((s,i)=>{
+          const attRec=attendance[s.date]||{};
+          const byM=attRec.byMember||{};
+          const presentIds=Object.keys(byM).filter(mid=>byM[mid]==='present'||byM[mid]==='late');
+          const presentMems=members.filter(m=>presentIds.includes(m.id));
+          const pMale=presentMems.filter(m=>m.gender==='남').length;
+          const pFemale=presentMems.filter(m=>m.gender==='여').length;
+          const pTotal=presentMems.length;
+          return `<tr>
+            <td style="border-right:1px solid #e8e8e8;border-bottom:1px solid #ededea;padding:5px 6px;text-align:center;color:var(--gray3)">${i+1}</td>
+            <td style="border-right:1px solid #e8e8e8;border-bottom:1px solid #ededea;padding:5px 6px;font-weight:700">${esc(s.title)}</td>
+            <td style="border-right:1px solid #e8e8e8;border-bottom:1px solid #ededea;padding:5px 6px;text-align:center;color:var(--gray4)">${s.date||''}</td>
+            <td style="border-right:1px solid #e8e8e8;border-bottom:1px solid #ededea;padding:5px 6px;text-align:center;">
+              <span style="font-weight:700;color:var(--or1)">총 ${pTotal}명</span>
+              <span style="color:var(--gray3);font-size:10px;"> (남 ${pMale} / 여 ${pFemale})</span>
+            </td>
+            <td style="border-bottom:1px solid #ededea;padding:5px 6px;text-align:center;color:var(--green);font-size:10px">${s.completedAt||s.date||''}</td>
+          </tr>`;
+        }).join('')}
+        <tr style="background:var(--or4);">
+          <td colspan="3" style="padding:6px 8px;text-align:right;font-weight:700;border-top:2px solid var(--or1);font-size:11px;color:#7a3800">전체 활동중 청소년</td>
+          <td style="padding:6px 8px;text-align:center;font-weight:700;border-top:2px solid var(--or1);">
+            <span style="color:var(--or1)">총 ${totalM}명</span>
+            <span style="color:var(--gray3);font-size:10px;"> (남 ${maleM} / 여 ${femaleM})</span>
+          </td>
+          <td style="border-top:2px solid var(--or1);"></td>
+        </tr>
+      </tbody>
+    </table>`
+  :`<div style="color:var(--gray3);font-size:11px;padding:10px 0">완료된 활동이 없습니다. 일정 관리에서 활동 완료 버튼을 눌러주세요.</div>`;
+
+  document.getElementById('statsContent').innerHTML=`
+    <div class="stat-grid">
+      <div class="stat-block"><h4>학년 분포</h4>${mkBars(gradeMap,maxG)||'<div style="color:var(--gray3)">데이터 없음</div>'}</div>
+      <div class="stat-block"><h4>학교별 인원</h4>${mkBars(schoolMap,maxS)||'<div style="color:var(--gray3)">데이터 없음</div>'}</div>
+      <div class="stat-block"><h4>관심 분야 TOP</h4>${mkBars(intMap,maxI)||'<div style="color:var(--gray3)">데이터 없음</div>'}</div>
+    </div>
+    <div class="stat-block" style="margin-top:10px;">
+      <h4>✅ 완료된 활동 현황 (총 ${completedSch.length}건)</h4>
+      ${completedHTML}
+    </div>
+    <div style="background:var(--blue-l);border:1px solid #b0c8f0;padding:6px 10px;font-size:11px;color:#1a3a7a;margin-top:8px;">💡 위 버튼으로 청소년 명단을 CSV 파일로 내보내거나 JSON 백업을 받을 수 있습니다.</div>`;
+}
+
+// ── CSV ──
+function exportMembersCSV(){if(members.length===0){toast('내보낼 데이터 없음','warn');return;}const h=['순번','이름','이름(영문)','성별','생년월일','학교','학년','반/그룹','본인연락처','주소','보호자성명','관계','보호자연락처','비상연락망','입원일','상태','활동연도','꿈/희망','좌우명','올해목표','관심분야','활동이력','지도사메모'];const rows=members.map((m,i)=>[i+1,m.name||'',m.nameEn||'',m.gender||'',m.birthdate||'',m.school||'',m.grade||'',m.groupName||'',m.phone||'',m.address||'',m.guardianName||'',m.guardianRel||'',m.guardianPhone||'',m.emergencyPhone||'',m.joinDate||'',m.status||'활동중',m.activeYear||'',m.dream||'',m.motto||'',m.goalText||'',(m.interests||[]).join(' / '),m.history||'',m.advisorNote||'']);const csv='\uFEFF'+[h,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download=`방과후아카데미_명단_${todayISO()}.csv`;a.click();toast('📊 CSV 다운로드 완료');}
+
+// ── 초기화: 로그인(auth.onAuthStateChanged) 성공 시 startApp()이 호출되어
+//    Firestore 리스너 연결 및 위 초기화 로직을 실행함 ──
+</script>
+</body>
+</html>
