@@ -870,7 +870,7 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
       </select>
       <div class="filter-sep" style="background:#b0c8a0;"></div>
       <label>활동 유형</label>
-      <select id="attendActType" onchange="renderSignbookFromUI()">
+      <select id="attendActType" onchange="onAttendActTypeChange()">
         <option value="특별지원프로그램">특별지원프로그램</option>
         <option value="토요체험활동">토요체험활동</option>
         <option value="방과후아카데미">방과후아카데미</option>
@@ -879,8 +879,9 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
         <option value="전문체험활동">전문체험활동</option>
         <option value="집단상담">집단상담</option>
         <option value="개인상담">개인상담</option>
-        <option value="기타">기타</option>
+        <option value="__custom__">직접입력</option>
       </select>
+      <input type="text" id="attendActTypeCustom" placeholder="활동 유형 입력" style="display:none;height:20px;padding:0 5px;border:1px solid #b0c8a0;font-size:11px;font-family:inherit;background:#fff;width:100px;outline:none;" oninput="renderSignbookFromUI()">
       <label style="margin-left:4px">행사명</label>
       <input type="text" id="attendActName" placeholder="나라찬 집단상담" style="height:20px;padding:0 5px;border:1px solid #b0c8a0;font-size:11px;font-family:inherit;background:#fff;width:130px;outline:none;" oninput="renderSignbookFromUI()">
       <div class="filter-sep" style="background:#b0c8a0;"></div>
@@ -933,6 +934,8 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
       <div style="display:flex;flex-direction:column;overflow:hidden;">
         <div class="job-panel-col-header">
           <span>💰 나라콩 보유 현황</span>
+          <input type="text" id="beanSearchInput" placeholder="🔍 이름 검색" oninput="renderBeanList()"
+            style="height:20px;padding:0 6px;border:1px solid #d4a060;font-size:11px;font-family:inherit;background:#fff;width:110px;outline:none;border-radius:2px;">
           <span id="beanTotalLabel" style="font-size:10px;color:#7a3800;"></span>
         </div>
         <div style="flex:1;overflow-y:auto;" id="beanListPanel"></div>
@@ -963,8 +966,9 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
         <input type="hidden" id="schId">
         <div class="mf-grid">
           <div class="mf-field mf-full"><label>활동 제목 *</label><input type="text" id="schTitle" required placeholder="제1회 청소년어울림마당"></div>
-          <div class="mf-field"><label>날짜 *</label><input type="date" id="schDate" required></div>
-          <div class="mf-field"><label>시간</label><input type="text" id="schTime" placeholder="14:00~17:00"></div>
+          <div class="mf-field"><label>시작일 *</label><input type="date" id="schDate" required onchange="onSchDateChange()"></div>
+          <div class="mf-field"><label>종료일 <span style="color:var(--gray3);font-weight:400;">(1박 2일 이상인 경우)</span></label><input type="date" id="schEndDate"></div>
+          <div class="mf-field mf-full"><label>시간</label><input type="text" id="schTime" placeholder="14:00~17:00"></div>
           <div class="mf-field mf-full"><label>장소</label><input type="text" id="schLocation" placeholder="광양시청소년문화센터"></div>
           <div class="mf-field mf-full"><label>활동 내용</label><textarea id="schContent" rows="3" placeholder="활동 목표, 진행 순서 등"></textarea></div>
           <div class="mf-field mf-full"><label>준비물 / 참고사항</label><textarea id="schNote" rows="2" placeholder="필기구, 간식 등"></textarea></div>
@@ -1266,7 +1270,7 @@ db.enablePersistence({synchronizeTabs:true}).catch(e=>console.warn('오프라인
 const SHARED_EMAIL = 'gwycc@hanmail.net'; // 공용 로그인 계정 — 실제 비밀번호는 코드에 없음(사용자가 PIN으로 입력)
 
 // ── 앱 버전 & GitHub 자동 업데이트 ──
-const APP_VERSION = '1.0.0';  // ← 업데이트할 때마다 이 숫자를 올려주세요
+const APP_VERSION = '1.2.0';  // ← 업데이트할 때마다 이 숫자를 올려주세요
 const GH_USER     = 'chc4380-alt';  // ← GitHub 사용자명
 const GH_REPO     = 'gwyouth-narachan'; // ← GitHub 저장소명
 const GH_BRANCH   = 'main';   // ← 브랜치명 (보통 main)
@@ -1507,7 +1511,7 @@ function startApp(){
   setTimeout(()=>{
     const now=new Date(),todayStr=todayISO();
     const bdayToday=members.filter(m=>{const md=getMonthDay(m.birthdate);return md&&md.month===now.getMonth()+1&&md.day===now.getDate();});
-    const todaySch=schedules.filter(s=>s.date===todayStr);
+    const todaySch=schedules.filter(s=>s.date<=todayStr&&todayStr<=(s.endDate||s.date));
     if(bdayToday.length>0)toast(`🎉 오늘은 ${bdayToday.map(m=>m.name).join(', ')}님 생일!`);
     if(todaySch.length>0)setTimeout(()=>toast(`🔔 오늘 일정: ${todaySch.map(s=>s.title).join(', ')}`),3500);
   },700);
@@ -1577,12 +1581,16 @@ function switchDetailTab(dt){
 }
 
 // ── 폼 ──
-function resetForm(){document.getElementById('memberForm').reset();document.getElementById('memberId').value='';currentPhotoDataUrl='';setPhotoPreview('');setTagsFromArray([]);}
+let _editSnapshot=null;
+function resetForm(){document.getElementById('memberForm').reset();document.getElementById('memberId').value='';currentPhotoDataUrl='';setPhotoPreview('');setTagsFromArray([]);_editSnapshot=null;}
 function saveMember(e){
   e.preventDefault();
   const id=document.getElementById('memberId').value||uid();
-  const m={id,photo:currentPhotoDataUrl,name:document.getElementById('name').value.trim(),nameEn:document.getElementById('nameEn').value.trim(),gender:document.getElementById('gender').value,birthdate:document.getElementById('birthdate').value,phone:document.getElementById('phone').value.trim(),address:document.getElementById('address').value.trim(),school:document.getElementById('school').value.trim(),grade:document.getElementById('grade').value,guardianName:document.getElementById('guardianName').value.trim(),guardianRel:document.getElementById('guardianRel').value.trim(),guardianPhone:document.getElementById('guardianPhone').value.trim(),emergencyPhone:document.getElementById('emergencyPhone').value.trim(),joinDate:document.getElementById('joinDate').value,status:document.getElementById('status').value,activeYear:document.getElementById('activeYear').value,groupName:document.getElementById('groupName').value.trim(),dream:document.getElementById('dream').value.trim(),motto:document.getElementById('motto').value.trim(),goalText:document.getElementById('goalText').value.trim(),interests:getSelectedTags(),advisorNote:document.getElementById('advisorNote').value.trim(),history:document.getElementById('history').value.trim(),createdAt:new Date().toISOString()};
   const idx=members.findIndex(x=>x.id===id);
+  if(idx>=0 && _editSnapshot && JSON.stringify(members[idx])!==_editSnapshot){
+    if(!confirm('다른 선생님이 방금 이 학생 정보를 수정했습니다.\n지금 저장하면 그 수정 내용을 덮어쓰게 됩니다. 그래도 저장할까요?\n\n(취소를 누르고 다시 열어서 최신 내용을 확인해보세요)')) return;
+  }
+  const m={id,photo:currentPhotoDataUrl,name:document.getElementById('name').value.trim(),nameEn:document.getElementById('nameEn').value.trim(),gender:document.getElementById('gender').value,birthdate:document.getElementById('birthdate').value,phone:document.getElementById('phone').value.trim(),address:document.getElementById('address').value.trim(),school:document.getElementById('school').value.trim(),grade:document.getElementById('grade').value,guardianName:document.getElementById('guardianName').value.trim(),guardianRel:document.getElementById('guardianRel').value.trim(),guardianPhone:document.getElementById('guardianPhone').value.trim(),emergencyPhone:document.getElementById('emergencyPhone').value.trim(),joinDate:document.getElementById('joinDate').value,status:document.getElementById('status').value,activeYear:document.getElementById('activeYear').value,groupName:document.getElementById('groupName').value.trim(),dream:document.getElementById('dream').value.trim(),motto:document.getElementById('motto').value.trim(),goalText:document.getElementById('goalText').value.trim(),interests:getSelectedTags(),advisorNote:document.getElementById('advisorNote').value.trim(),history:document.getElementById('history').value.trim(),createdAt:new Date().toISOString()};
   if(idx>=0){members[idx]=m;toast('✅ 수정되었습니다');}else{members.push(m);toast('✅ 등록되었습니다');}
   db.collection('members').doc(id).set(m).catch(err=>toast('저장 실패: '+err.message,'error'));
   resetForm();selectedMemberId=id;switchTab('list');
@@ -1590,6 +1598,7 @@ function saveMember(e){
 function editMember(id){
   const m=members.find(x=>x.id===id);if(!m)return;
   resetForm();currentPhotoDataUrl=m.photo||'';setPhotoPreview(currentPhotoDataUrl);
+  _editSnapshot=JSON.stringify(m);
   document.getElementById('memberId').value=m.id;
   ['name','nameEn','phone','address','school','groupName','dream','motto','advisorNote','history'].forEach(k=>document.getElementById(k).value=m[k]||'');
   document.getElementById('goalText').value=m.goalText||'';
@@ -1832,16 +1841,25 @@ function viewCard(id){
 }
 
 // ── 일정 ──
+function onSchDateChange(){
+  const d=document.getElementById('schDate').value;
+  const endEl=document.getElementById('schEndDate');
+  endEl.min=d;
+  if(endEl.value && endEl.value<d) endEl.value=d;
+}
 function openScheduleForm(id){
   document.getElementById('scheduleForm').reset();document.getElementById('schId').value='';
   document.getElementById('scheduleModalTitle').textContent='📅 새 일정 등록';
-  if(id){const s=schedules.find(x=>x.id===id);if(!s)return;document.getElementById('scheduleModalTitle').textContent='📅 일정 수정';document.getElementById('schId').value=s.id;document.getElementById('schTitle').value=s.title||'';document.getElementById('schDate').value=s.date||'';document.getElementById('schTime').value=s.time||'';document.getElementById('schLocation').value=s.location||'';document.getElementById('schContent').value=s.content||'';document.getElementById('schNote').value=s.note||'';}
+  if(id){const s=schedules.find(x=>x.id===id);if(!s)return;document.getElementById('scheduleModalTitle').textContent='📅 일정 수정';document.getElementById('schId').value=s.id;document.getElementById('schTitle').value=s.title||'';document.getElementById('schDate').value=s.date||'';document.getElementById('schEndDate').value=(s.endDate&&s.endDate!==s.date)?s.endDate:'';document.getElementById('schTime').value=s.time||'';document.getElementById('schLocation').value=s.location||'';document.getElementById('schContent').value=s.content||'';document.getElementById('schNote').value=s.note||'';}
   document.getElementById('scheduleModal').classList.add('show');
 }
 function saveSchedule(e){
   e.preventDefault();
   const id=document.getElementById('schId').value||schUid();
-  const s={id,title:document.getElementById('schTitle').value.trim(),date:document.getElementById('schDate').value,time:document.getElementById('schTime').value.trim(),location:document.getElementById('schLocation').value.trim(),content:document.getElementById('schContent').value.trim(),note:document.getElementById('schNote').value.trim()};
+  const date=document.getElementById('schDate').value;
+  let endDate=document.getElementById('schEndDate').value||date;
+  if(endDate<date){toast('종료일은 시작일보다 빠를 수 없습니다','warn');return;}
+  const s={id,title:document.getElementById('schTitle').value.trim(),date,endDate,time:document.getElementById('schTime').value.trim(),location:document.getElementById('schLocation').value.trim(),content:document.getElementById('schContent').value.trim(),note:document.getElementById('schNote').value.trim()};
   const idx=schedules.findIndex(x=>x.id===id);
   if(idx>=0){schedules[idx]=s;toast('✅ 일정 수정 완료');}else{schedules.push(s);toast('✅ 일정 등록 완료');}
   db.collection('schedules').doc(id).set(s).catch(err=>toast('저장 실패: '+err.message,'error'));
@@ -1857,32 +1875,44 @@ function toggleComplete(id){
 }
 
 function deleteSchedule(id){const s=schedules.find(x=>x.id===id);if(!s)return;if(!confirm(`"${s.title}" 일정을 삭제할까요?`))return;schedules=schedules.filter(x=>x.id!==id);if(selectedSchId===id){selectedSchId=null;document.getElementById('schDetail').innerHTML='<div style="color:var(--gray3);font-size:11px;text-align:center;padding:20px 0">일정을 선택하면 상세 내용이 표시됩니다.</div>';}db.collection('schedules').doc(id).delete().catch(err=>toast('삭제 실패: '+err.message,'error'));renderSchedule();toast('🗑 삭제됨');}
+// 시작일~종료일 사이 모든 날짜(YYYY-MM-DD)를 배열로 반환 (1박 2일 이상 일정용)
+function eachDateInRange(start,end){
+  const out=[];let d=new Date(start+'T00:00:00');const e=new Date((end||start)+'T00:00:00');
+  let guard=0;
+  while(d<=e && guard<366){out.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);d.setDate(d.getDate()+1);guard++;}
+  return out;
+}
 function renderSchedule(){
   const filter=document.getElementById('scheduleFilter').value,today=todayISO();
   let list=[...schedules].sort((a,b)=>a.date.localeCompare(b.date));
-  if(filter==='upcoming')list=list.filter(s=>s.date>=today);
-  else if(filter==='past')list=list.filter(s=>s.date<today);
-  else if(filter==='month'){const ym=today.slice(0,7);list=list.filter(s=>s.date.startsWith(ym));}
+  if(filter==='upcoming')list=list.filter(s=>(s.endDate||s.date)>=today);
+  else if(filter==='past')list=list.filter(s=>(s.endDate||s.date)<today);
+  else if(filter==='month'){const ym=today.slice(0,7);list=list.filter(s=>s.date.startsWith(ym)||(s.endDate||'').startsWith(ym));}
   const sumEl=document.getElementById('scheduleSummary');if(sumEl)sumEl.textContent=`${list.length}건 표시`;
   const tbody=document.getElementById('schGridBody');
   if(schedules.length===0){tbody.innerHTML=`<tr><td colspan="9" class="grid-empty">등록된 일정이 없습니다. 위 [새 일정 등록] 버튼을 클릭해주세요.</td></tr>`;return;}
   if(list.length===0){tbody.innerHTML=`<tr><td colspan="9" class="grid-empty">해당 기간에 일정이 없습니다.</td></tr>`;return;}
   const activeM=members.filter(m=>m.status==='활동중');
   tbody.innerHTML=list.map((s,i)=>{
-    const isPast=s.date<today,isToday=s.date===today;
-    const attRec=attendance[s.date]||{};
-    const sigCount=Object.values(attRec.signatures||{}).filter(Boolean).length;
-    const presentCount=Object.values(attRec.byMember||{}).filter(v=>v==='present'||v==='late').length;
-    const stColor=isToday?'color:var(--or1);font-weight:700':isPast?'color:var(--gray3)':'color:var(--green);font-weight:700';
+    const end=s.endDate||s.date;
+    const isMultiDay=end!==s.date;
+    const isPast=end<today,isOngoing=s.date<=today&&today<=end;
+    const days=eachDateInRange(s.date,end);
+    const sigMembers=new Set(),presentMembers=new Set();
+    days.forEach(d=>{const attRec=attendance[d]||{};Object.entries(attRec.signatures||{}).forEach(([mid,v])=>{if(v)sigMembers.add(mid);});Object.entries(attRec.byMember||{}).forEach(([mid,v])=>{if(v==='present'||v==='late')presentMembers.add(mid);});});
+    const sigCount=sigMembers.size,presentCount=presentMembers.size;
+    const stColor=isOngoing?'color:var(--or1);font-weight:700':isPast?'color:var(--gray3)':'color:var(--green);font-weight:700';
+    const dateLabel=isMultiDay?`${s.date}<br>~${end}`:s.date;
+    const statusLabel=isPast?'종료':isOngoing?(isMultiDay?'진행중':'오늘'):'예정';
     return `<tr class="${selectedSchId===s.id?'selected':''}" onclick="selectSchedule('${s.id}')">
       <td style="text-align:center;color:var(--gray3)">${i+1}</td>
-      <td style="text-align:center;${stColor}">${s.date}</td>
+      <td style="text-align:center;${stColor}">${dateLabel}</td>
       <td style="text-align:center">${esc(s.time||'-')}</td>
       <td style="font-weight:700">${esc(s.title)}</td>
       <td>${esc(s.location||'-')}</td>
       <td style="text-align:center">${sigCount}명</td>
       <td style="text-align:center">${presentCount}/${activeM.length}명</td>
-      <td style="text-align:center;${stColor}">${isToday?'오늘':isPast?'종료':'예정'}</td>
+      <td style="text-align:center;${stColor}">${statusLabel}</td>
       <td style="text-align:center"><div style="display:flex;gap:2px;justify-content:center;flex-wrap:wrap;">
         <button class="btn btn-xs btn-or" onclick="event.stopPropagation();goAttendWithSchedule('${s.date}','${s.id}')">서명부</button>
         ${s.completed
@@ -1901,7 +1931,7 @@ function selectSchedule(id){
   renderSchedule();
   document.getElementById('schDetail').innerHTML=`<div class="sch-detail-inner">
     <div class="sch-detail-title">${esc(s.title)}</div>
-    <div><strong>날짜:</strong> ${dateFmtKr(s.date)}${s.time?' '+esc(s.time):''}</div>
+    <div><strong>날짜:</strong> ${(s.endDate&&s.endDate!==s.date)?`${dateFmtKr(s.date)} ~ ${dateFmtKr(s.endDate)}`:dateFmtKr(s.date)}${s.time?' '+esc(s.time):''}</div>
     ${s.location?`<div><strong>장소:</strong> ${esc(s.location)}</div>`:''}
     ${s.content?`<div style="margin-top:6px;white-space:pre-wrap">${esc(s.content)}</div>`:''}
     ${s.note?`<div style="margin-top:6px;background:var(--or4);border:1px solid #e0b870;padding:4px 8px;font-size:10px;"><strong>📌 준비물:</strong> ${esc(s.note)}</div>`:''}
@@ -1910,10 +1940,28 @@ function selectSchedule(id){
 function goAttendWithSchedule(date,schId){switchTab('attend');document.getElementById('attendDate').value=date;refreshAttendSel();document.getElementById('attendSchedule').value=schId;onAttendDateChange();}
 
 // ── 서명부 ──
-function refreshAttendSel(){const sel=document.getElementById('attendSchedule'),cur=sel.value;sel.innerHTML='<option value="">— 일정 없음 —</option>';[...schedules].sort((a,b)=>b.date.localeCompare(a.date)).forEach(s=>{const opt=document.createElement('option');opt.value=s.id;opt.textContent=`${s.date} ${s.title}`;sel.appendChild(opt);});if(cur)sel.value=cur;}
+function refreshAttendSel(){const sel=document.getElementById('attendSchedule'),cur=sel.value;sel.innerHTML='<option value="">— 일정 없음 —</option>';[...schedules].sort((a,b)=>b.date.localeCompare(a.date)).forEach(s=>{const opt=document.createElement('option');const rangeLabel=(s.endDate&&s.endDate!==s.date)?`${s.date}~${s.endDate}`:s.date;opt.value=s.id;opt.textContent=`${rangeLabel} ${s.title}`;sel.appendChild(opt);});if(cur)sel.value=cur;}
 function onAttendDateChange(){const date=document.getElementById('attendDate').value;if(!date)return;const rec=attendance[date]||{};if(rec.scheduleId)document.getElementById('attendSchedule').value=rec.scheduleId;renderAttendStat(date);renderSignbook(date);}
-function onAttendScheduleChange(){const date=document.getElementById('attendDate').value;if(!date)return;const schId=document.getElementById('attendSchedule').value;if(!attendance[date])attendance[date]={scheduleId:'',byMember:{},signatures:{}};attendance[date].scheduleId=schId;if(schId){const s=schedules.find(x=>x.id===schId);if(s&&s.date!==date){document.getElementById('attendDate').value=s.date;onAttendDateChange();return;}}db.collection('attendance').doc(date).set({scheduleId:schId},{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));renderAttendStat(date);renderSignbook(date);}
+function onAttendScheduleChange(){
+  const date=document.getElementById('attendDate').value;if(!date)return;
+  const schId=document.getElementById('attendSchedule').value;
+  if(!attendance[date])attendance[date]={scheduleId:'',byMember:{},signatures:{}};
+  attendance[date].scheduleId=schId;
+  if(schId){
+    const s=schedules.find(x=>x.id===schId);
+    const end=s?(s.endDate||s.date):null;
+    // 1박 2일 이상 일정은 기간 안의 날짜라면 그대로 두고, 기간 밖일 때만 시작일로 이동
+    if(s&&(date<s.date||date>end)){document.getElementById('attendDate').value=s.date;onAttendDateChange();return;}
+  }
+  db.collection('attendance').doc(date).set({scheduleId:schId},{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));
+  renderAttendStat(date);renderSignbook(date);
+}
 function renderSignbookFromUI(){const date=document.getElementById('attendDate').value;if(date){renderAttendStat(date);renderSignbook(date);}}
+function onAttendActTypeChange(){
+  const isCustom=document.getElementById('attendActType').value==='__custom__';
+  document.getElementById('attendActTypeCustom').style.display=isCustom?'block':'none';
+  renderSignbookFromUI();
+}
 
 function renderAttendStat(date){
   const stat=document.getElementById('attendStat');
@@ -1953,7 +2001,8 @@ function renderSignbook(date){
   const byM=rec.byMember||{},sigs=rec.signatures||{};
 
   // 활동 유형 & 행사명 & 반 이름
-  const actType=document.getElementById('attendActType').value;
+  const actTypeSel=document.getElementById('attendActType').value;
+  const actType=actTypeSel==='__custom__'?(document.getElementById('attendActTypeCustom').value.trim()||'직접입력'):actTypeSel;
   const actName=document.getElementById('attendActName').value.trim();
   const groupName=g?g.name:'';
   // 날짜 포맷 MM.DD
@@ -2258,26 +2307,36 @@ function renderJobList(){
   }).join('');
 }
 
+let beanSortKey='name', beanSortDir='asc';
+function setBeanSort(key){
+  if(beanSortKey===key) beanSortDir=beanSortDir==='asc'?'desc':'asc';
+  else { beanSortKey=key; beanSortDir=key==='balance'?'desc':'asc'; }
+  renderBeanList();
+}
 function renderBeanList(){
   const con=document.getElementById('beanListPanel');if(!con)return;
-  const active=members.filter(m=>m.status==='활동중').sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const active=members.filter(m=>m.status==='활동중');
   const totalBeans=active.reduce((s,m)=>s+getBeanBalance(m.id),0);
   const sumEl=document.getElementById('beanTotalLabel');
   if(sumEl)sumEl.textContent=`전체 ${totalBeans}💰 유통 중`;
   const sumEl2=document.getElementById('narakongSummary');
   if(sumEl2)sumEl2.textContent=`청소년 ${active.length}명 · 직업 ${jobs.length}개`;
   if(active.length===0){con.innerHTML=`<div style="text-align:center;padding:40px;color:var(--gray3)">활동중인 청소년이 없습니다.</div>`;return;}
-  const rows=active.map((m,i)=>{
+  const q=(document.getElementById('beanSearchInput')?.value||'').trim();
+  let list=active.filter(m=>!q||(m.name||'').includes(q)).map(m=>({m,balance:getBeanBalance(m.id)}));
+  list.sort((a,b)=>{
+    const cmp=beanSortKey==='balance'?(a.balance-b.balance):(a.m.name||'').localeCompare(b.m.name||'');
+    return beanSortDir==='asc'?cmp:-cmp;
+  });
+  if(list.length===0){con.innerHTML=`<div style="text-align:center;padding:40px;color:var(--gray3)">"${esc(q)}" 검색 결과가 없습니다.</div>`;return;}
+  const rows=list.map(({m,balance},i)=>{
     const myJob=jobs.find(j=>(j.memberIds||[]).includes(m.id));
-    const balance=getBeanBalance(m.id);
-    const myTx=[...beanTx].filter(t=>t.memberId===m.id).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,3);
     return `<tr>
       <td style="text-align:center;color:var(--gray3)">${i+1}</td>
-      <td style="font-weight:700">${esc(m.name)}</td>
+      <td style="font-weight:700;cursor:pointer;color:var(--blue);text-decoration:underline;" onclick="openJobHistModal('${m.id}','${esc(m.name)}')" title="클릭하면 나라콩 내역을 볼 수 있어요">${esc(m.name)}</td>
       <td style="text-align:center">${esc((m.grade||'').replace('초등 ',''))}</td>
       <td style="text-align:center">${myJob?`<span class="bean-job-badge">${esc(myJob.name)}</span>`:'<span style="color:var(--gray3)">미배정</span>'}</td>
       <td style="text-align:center"><span class="bean-val">${balance}</span>💰</td>
-      <td style="font-size:10px;color:var(--gray4)">${myTx.map(t=>`<span style="color:${t.type==='plus'?'var(--green)':'var(--danger)'}">${t.type==='plus'?'+':'-'}${t.amount}</span><span style="color:var(--gray3)"> ${esc(t.memo||'')} ${t.date||''}</span>`).join(' | ')||'<span style="color:var(--gray3)">-</span>'}</td>
       <td style="text-align:center"><div style="display:flex;flex-direction:column;gap:2px;align-items:stretch;">
         <button class="btn btn-xs" style="color:var(--green);border-color:#a0d0b0;width:100%;margin-bottom:2px" onclick="openBeanTxFormFor('${m.id}','plus')">+지급</button>
         <button class="btn btn-xs btn-danger" style="width:100%;margin-bottom:2px" onclick="openBeanTxFormFor('${m.id}','minus')">-차감</button>
@@ -2286,10 +2345,11 @@ function renderBeanList(){
       </div></td>
     </tr>`;
   }).join('');
+  const arrow=key=>beanSortKey===key?(beanSortDir==='asc'?' ▲':' ▼'):'';
   con.innerHTML=`<table class="bean-table"><thead><tr>
-    <th style="width:30px">No.</th><th style="width:66px">이름</th><th style="width:44px">학년</th>
-    <th style="width:90px">현재 직업</th><th style="width:76px">보유 나라콩</th>
-    <th>최근 거래</th><th style="width:72px">관리</th>
+    <th style="width:30px">No.</th><th style="width:100px;cursor:pointer;user-select:none;" onclick="setBeanSort('name')" title="클릭하여 정렬">이름${arrow('name')}</th><th style="width:50px">학년</th>
+    <th style="width:110px">현재 직업</th><th style="width:90px;cursor:pointer;user-select:none;" onclick="setBeanSort('balance')" title="클릭하여 정렬">보유 나라콩${arrow('balance')}</th>
+    <th style="width:72px">관리</th>
   </tr></thead><tbody>${rows}</tbody></table>`;
 }
 
@@ -2632,11 +2692,11 @@ function renderDashboard(){
   const now=new Date(),thisMon=now.getMonth()+1,today2=todayISO();
   const bdayThis=members.filter(m=>{const md=getMonthDay(m.birthdate);return md&&md.month===thisMon;});
   const bdayToday=members.filter(m=>{const md=getMonthDay(m.birthdate);return md&&md.month===thisMon&&md.day===now.getDate();});
-  const upcomingSch=[...schedules].filter(s=>s.date>=today2).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5);
+  const upcomingSch=[...schedules].filter(s=>(s.endDate||s.date)>=today2).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5);
   const gradeMap={};members.forEach(m=>{const k=m.grade||'미입력';gradeMap[k]=(gradeMap[k]||0)+1;});
   const maxGrade=Math.max(...Object.values(gradeMap),1);
   const gradeHtml=Object.entries(gradeMap).sort().map(([g,c])=>`<div class="sbar-item"><span class="sbar-label">${esc(g)}</span><div class="sbar"><div class="sbar-fill" style="width:${Math.round(c/maxGrade*100)}%"></div></div><span class="sbar-val">${c}</span></div>`).join('')||'<div style="color:var(--gray3);font-size:11px">데이터 없음</div>';
-  const upcomingHtml=upcomingSch.length>0?`<table class="grid-table" style="font-size:11px"><thead><tr><th style="width:80px">날짜</th><th style="width:60px">시간</th><th>활동 제목</th><th style="width:100px">장소</th><th style="width:80px">관리</th></tr></thead><tbody>`+upcomingSch.map(s=>{const isToday=s.date===today2;return `<tr style="${isToday?'background:var(--or4)':''}"><td style="text-align:center;${isToday?'font-weight:700;color:var(--or1)':'color:var(--gray4)'}">${s.date}</td><td style="text-align:center">${esc(s.time||'-')}</td><td style="font-weight:${isToday?'700':'400'}">${esc(s.title)}${isToday?' <span style="background:var(--or1);color:#fff;font-size:9px;padding:0 3px">오늘</span>':''}</td><td>${esc(s.location||'-')}</td><td style="text-align:center"><button class="btn btn-xs btn-or" onclick="goAttendWithSchedule('${s.date}','${s.id}')">서명부</button></td></tr>`;}).join('')+'</tbody></table>':`<div style="color:var(--gray3);font-size:11px;padding:10px;text-align:center">예정된 일정이 없습니다.</div>`;
+  const upcomingHtml=upcomingSch.length>0?`<table class="grid-table" style="font-size:11px"><thead><tr><th style="width:80px">날짜</th><th style="width:60px">시간</th><th>활동 제목</th><th style="width:100px">장소</th><th style="width:80px">관리</th></tr></thead><tbody>`+upcomingSch.map(s=>{const end=s.endDate||s.date;const isOngoing=s.date<=today2&&today2<=end;const dateLabel=end!==s.date?`${s.date}~${end}`:s.date;const goDate=(today2>=s.date&&today2<=end)?today2:s.date;return `<tr style="${isOngoing?'background:var(--or4)':''}"><td style="text-align:center;${isOngoing?'font-weight:700;color:var(--or1)':'color:var(--gray4)'}">${dateLabel}</td><td style="text-align:center">${esc(s.time||'-')}</td><td style="font-weight:${isOngoing?'700':'400'}">${esc(s.title)}${isOngoing?' <span style="background:var(--or1);color:#fff;font-size:9px;padding:0 3px">진행중</span>':''}</td><td>${esc(s.location||'-')}</td><td style="text-align:center"><button class="btn btn-xs btn-or" onclick="goAttendWithSchedule('${goDate}','${s.id}')">서명부</button></td></tr>`;}).join('')+'</tbody></table>':`<div style="color:var(--gray3);font-size:11px;padding:10px;text-align:center">예정된 일정이 없습니다.</div>`;
   const recentHtml=[...members].sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||'')).slice(0,5).map(m=>`<div class="dw-row">${m.photo?`<img src="${m.photo}" style="width:20px;height:26px;object-fit:cover;">`:'<span style="font-size:14px;color:#ccc">👤</span>'}<span style="font-weight:700;flex:1">${esc(m.name)}</span><span style="color:var(--gray3)">${esc(m.school||'')} ${esc(m.grade||'')}</span><button class="btn btn-xs" onclick="viewCard('${m.id}')">카드</button></div>`).join('')||'<div class="dw-row" style="color:var(--gray3)">등록된 청소년이 없습니다.</div>';
   const bdayHtml=bdayThis.length>0?bdayThis.map(m=>{const md=getMonthDay(m.birthdate);const isTdy=md&&md.day===now.getDate();return `<div class="dw-row" style="${isTdy?'background:var(--or4)':''}"><span>${isTdy?'🎉':'🎂'}</span><span style="font-weight:700;flex:1">${esc(m.name)}</span><span style="color:var(--gray3)">${md?thisMon+'월 '+md.day+'일':''} ${isTdy?'오늘!':''}</span></div>`;}).join(''):`<div class="dw-row" style="color:var(--gray3)">이번 달 생일인 청소년이 없습니다.</div>`;
   const beanTopHtml=(()=>{
@@ -2653,7 +2713,7 @@ function renderDashboard(){
       <div class="dash-card primary"><div class="dc-label">전체 청소년</div><div class="dc-val">${members.length}명</div><div class="dc-sub">활동중 ${active}명</div></div>
       <div class="dash-card"><div class="dc-label">👦 남자</div><div class="dc-val">${male}명</div><div class="dc-sub">${members.length?Math.round(male/members.length*100):0}%</div></div>
       <div class="dash-card"><div class="dc-label">👧 여자</div><div class="dc-val">${female}명</div><div class="dc-sub">${members.length?Math.round(female/members.length*100):0}%</div></div>
-      <div class="dash-card"><div class="dc-label">📅 등록 일정</div><div class="dc-val">${schedules.length}건</div><div class="dc-sub">오늘 ${schedules.filter(s=>s.date===today2).length}건</div></div>
+      <div class="dash-card"><div class="dc-label">📅 등록 일정</div><div class="dc-val">${schedules.length}건</div><div class="dc-sub">오늘 ${schedules.filter(s=>s.date<=today2&&today2<=(s.endDate||s.date)).length}건</div></div>
       <div class="dash-card"><div class="dc-label">🎂 이번 달 생일</div><div class="dc-val">${bdayThis.length}명</div><div class="dc-sub">${thisMon}월 · 오늘 ${bdayToday.length}명</div></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
