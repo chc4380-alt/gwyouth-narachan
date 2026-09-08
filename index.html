@@ -228,6 +228,15 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
 .fp-photo-box:hover{border-color:var(--or1);background:var(--or4);}
 .fp-photo-box img{width:100%;height:100%;object-fit:cover;}
 
+/* 성취포상제 증빙사진 슬롯 */
+.reward-photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:420px;}
+.reward-photo-slot{aspect-ratio:4/3;border:1px dashed var(--border-d);background:var(--gray0);border-radius:2px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.reward-photo-slot:hover{border-color:var(--or1);background:var(--or4);}
+.reward-photo-slot.filled{border-style:solid;cursor:default;}
+.reward-photo-slot img{width:100%;height:100%;object-fit:cover;}
+.reward-photo-slot .rps-add{font-size:18px;color:var(--gray3);}
+.reward-photo-slot .rps-del{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:10px;line-height:16px;text-align:center;cursor:pointer;}
+
 /* 태그 */
 .tag-wrap{display:flex;flex-wrap:wrap;gap:3px;padding:3px 0;}
 .etag{
@@ -581,6 +590,12 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
   <div class="tb-group">
     <button class="tb-btn" data-tab="narakong" onclick="switchTab('narakong')">
       <span class="tb-icon">💰</span><span class="tb-label">직업·나라콩</span>
+    </button>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="tb-group">
+    <button class="tb-btn" data-tab="reward" onclick="switchTab('reward')">
+      <span class="tb-icon">🏅</span><span class="tb-label">성취포상제</span>
     </button>
   </div>
   <div class="tb-sep"></div>
@@ -943,7 +958,78 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
     </div>
   </div>
 
+  <!-- ===== 성취포상제 ===== -->
+  <div id="view-reward" class="content-area" style="display:none;overflow-y:auto;padding:0;">
+    <div class="filter-bar">
+      <label>검색</label>
+      <input type="text" id="rewardSearchInput" placeholder="이름 검색" oninput="renderRewardList()">
+      <div class="filter-sep"></div>
+      <label>목표단계</label>
+      <select id="rewardLevelFilter" onchange="renderRewardList()">
+        <option value="">전체</option>
+        <option value="동장">동장</option>
+        <option value="은장">은장</option>
+        <option value="금장">금장</option>
+      </select>
+      <span style="margin-left:auto;font-size:10px;color:var(--gray3)" id="rewardSummary"></span>
+    </div>
+    <div class="grid-wrap">
+      <table class="grid-table" style="table-layout:auto;">
+        <thead><tr>
+          <th class="col-no">No.</th>
+          <th style="width:80px">이름</th>
+          <th style="width:70px">학년</th>
+          <th style="width:64px">목표단계</th>
+          <th>선택 활동영역</th>
+          <th style="width:90px">사진 첨부</th>
+          <th style="width:120px">관리</th>
+        </tr></thead>
+        <tbody id="rewardGridBody"></tbody>
+      </table>
+    </div>
+  </div>
+
 </div><!-- /app-body -->
+
+<!-- ===== 성취포상제 편집 모달 ===== -->
+<div class="modal" id="rewardEditModal">
+  <div class="modal-win lg">
+    <div class="modal-titlebar"><span id="rewardEditTitle">🏅 성취포상제 관리</span><button class="modal-close-x" onclick="closeModal('rewardEditModal')">✕</button></div>
+    <div class="modal-body" style="max-height:72vh;overflow-y:auto;">
+      <input type="hidden" id="rewardMemberId">
+      <div class="mf-field" style="margin-bottom:12px;max-width:200px;">
+        <label>목표 단계</label>
+        <select id="rewardTargetLevel">
+          <option value="동장">동장</option>
+          <option value="은장">은장</option>
+          <option value="금장">금장</option>
+        </select>
+      </div>
+      <div class="mf-field" style="margin-bottom:14px;">
+        <label>활동영역 선택 (5개 중 최대 4개)</label>
+        <div id="rewardAreaPicker" class="tag-wrap"></div>
+      </div>
+      <div id="rewardAreaSections"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('rewardEditModal')">취소</button>
+      <button class="btn btn-or" onclick="saveReward()">💾 저장</button>
+    </div>
+  </div>
+</div>
+<input type="file" id="rewardPhotoInput" accept="image/*" multiple style="display:none">
+
+<!-- ===== 성취포상제 증빙자료 인쇄 모달 ===== -->
+<div class="modal" id="rewardPrintModal">
+  <div class="modal-win lg">
+    <div class="modal-titlebar"><span>🖨 성취포상제 증빙자료</span><button class="modal-close-x" onclick="closeModal('rewardPrintModal')">✕</button></div>
+    <div class="modal-body" style="padding:0;" id="rewardPrintContent"></div>
+    <div class="modal-footer print-btns">
+      <button class="btn" onclick="closeModal('rewardPrintModal')">닫기</button>
+      <button class="btn btn-or" onclick="window.print()">🖨 인쇄</button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== 인사카드 모달 ===== -->
 <div class="modal" id="cardModal">
@@ -1270,7 +1356,7 @@ db.enablePersistence({synchronizeTabs:true}).catch(e=>console.warn('오프라인
 const SHARED_EMAIL = 'gwycc@hanmail.net'; // 공용 로그인 계정 — 실제 비밀번호는 코드에 없음(사용자가 PIN으로 입력)
 
 // ── 앱 버전 & GitHub 자동 업데이트 ──
-const APP_VERSION = '1.2.2';  // ← 업데이트할 때마다 이 숫자를 올려주세요
+const APP_VERSION = '1.3.0';  // ← 업데이트할 때마다 이 숫자를 올려주세요
 const GH_USER     = 'chc4380-alt';  // ← GitHub 사용자명
 const GH_REPO     = 'gwyouth-narachan'; // ← GitHub 저장소명
 const GH_BRANCH   = 'main';   // ← 브랜치명 (보통 main)
@@ -1357,6 +1443,7 @@ function refreshCurrentTab(){
   if(tab==='dashboard') renderDashboard();
   else if(tab==='list'){ renderListGroupTabs(); renderList(); if(selectedMemberId) renderDetailPanel(selectedMemberId); }
   else if(tab==='narakong'){ renderJobList(); renderBeanList(); if(selectedMemberId) renderBeanDetailPanel(selectedMemberId); }
+  else if(tab==='reward') renderRewardList();
   else if(tab==='schedule') renderSchedule();
   else if(tab==='stats') renderStats();
   else if(tab==='groups') renderGroupsPanel();
@@ -1391,6 +1478,16 @@ function getGhRawBase(){
 }
 let members=[],schedules=[],attendance={},groups=[],jobs=[],beanTx=[],jobHistory=[],settings={orgName:'광양시청소년문화센터',programName:'청소년방과후아카데미',advisorName:'',year:'2026'};
 let selectedMemberId=null,selectedSchId=null,activeListGroup='all',selectedJobId=null;
+
+// ── 청소년자기도전포상제 ──
+const REWARD_AREAS=[
+  {key:'self',label:'자기개발활동'},
+  {key:'phys',label:'신체단련활동'},
+  {key:'volun',label:'봉사활동'},
+  {key:'expl',label:'탐험활동'},
+  {key:'career',label:'진로개발활동'}
+];
+let rewardMeta={},rewardAreaData={},_rewardEdit=null;
 
 function buildPayload(){return{version:'erp4',savedAt:new Date().toISOString(),members,schedules,attendance,groups,jobs,beanTx,jobHistory,settings};}
 
@@ -1500,6 +1597,20 @@ function startApp(){
     if(doc.exists) settings={...settings,...doc.data()};
     updateHeader();
   }, e=>console.error('settings sync', e));
+  db.collection('rewards').onSnapshot(snap=>{
+    rewardMeta={};
+    snap.docs.forEach(d=>{ rewardMeta[d.id]=d.data(); });
+    if(document.querySelector('.tb-btn[data-tab="reward"]')?.classList.contains('active')) renderRewardList();
+  }, e=>console.error('rewards sync', e));
+  db.collectionGroup('areaData').onSnapshot(snap=>{
+    rewardAreaData={};
+    snap.docs.forEach(d=>{
+      const memberId=d.ref.parent.parent.id;
+      if(!rewardAreaData[memberId]) rewardAreaData[memberId]={};
+      rewardAreaData[memberId][d.id]=d.data();
+    });
+    if(document.querySelector('.tb-btn[data-tab="reward"]')?.classList.contains('active')) renderRewardList();
+  }, e=>console.error('rewardAreaData sync', e));
 
   window.addEventListener('online', ()=>setFSBadge(true));
   window.addEventListener('offline', ()=>setFSBadge(false));
@@ -1536,7 +1647,7 @@ function toast(msg,type='ok'){const t=document.getElementById('toast');t.textCon
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 
 // ── 탭 ──
-const VIEWS={dashboard:'view-dashboard',list:'view-list',add:'view-add',groups:'view-groups',narakong:'view-narakong',schedule:'view-schedule',attend:'view-attend',stats:'view-stats'};
+const VIEWS={dashboard:'view-dashboard',list:'view-list',add:'view-add',groups:'view-groups',narakong:'view-narakong',reward:'view-reward',schedule:'view-schedule',attend:'view-attend',stats:'view-stats'};
 function switchTab(tab){
   Object.values(VIEWS).forEach(v=>{const el=document.getElementById(v);if(el)el.style.display='none';});
   const el=document.getElementById(VIEWS[tab]);if(el)el.style.display=(tab==='list'||tab==='add'||tab==='schedule'||tab==='attend')?'flex':'block';
@@ -1546,6 +1657,7 @@ function switchTab(tab){
   if(tab==='add')setTimeout(initDrop,50);
   if(tab==='groups'){renderGroupsPanel();}
   if(tab==='narakong'){renderJobList();renderBeanList();}
+  if(tab==='reward')renderRewardList();
   if(tab==='schedule')renderSchedule();
   if(tab==='attend'){if(!document.getElementById('attendDate').value)document.getElementById('attendDate').value=todayISO();refreshAttendSel();refreshAttendGroupSel();onAttendDateChange();}
   if(tab==='stats')renderStats();
@@ -2689,6 +2801,204 @@ function execPayWages(){
   if(selectedMemberId)renderBeanDetailPanel(selectedMemberId);
   const taxMsg=taxOn?` (세금 총 ${totalTax}💰 차감)`:'';
   toast(`💰 ${count}명에게 총 ${totalPaid}💰 지급 완료!${taxMsg}`);
+}
+
+// ── 청소년자기도전포상제 ──
+function renderRewardList(){
+  const tbody=document.getElementById('rewardGridBody'); if(!tbody) return;
+  const q=(document.getElementById('rewardSearchInput')?.value||'').trim();
+  const levelFilter=document.getElementById('rewardLevelFilter')?.value||'';
+  let list=members.filter(m=>m.status==='활동중');
+  if(q) list=list.filter(m=>(m.name||'').includes(q));
+  let withMeta=list.map(m=>({m,meta:rewardMeta[m.id]||null}));
+  if(levelFilter) withMeta=withMeta.filter(x=>x.meta&&x.meta.targetLevel===levelFilter);
+  withMeta.sort((a,b)=>(a.m.name||'').localeCompare(b.m.name||''));
+  const sumEl=document.getElementById('rewardSummary');
+  const registeredCount=list.filter(m=>rewardMeta[m.id]).length;
+  if(sumEl) sumEl.textContent=`전체 ${list.length}명 중 ${registeredCount}명 등록`;
+  if(withMeta.length===0){tbody.innerHTML=`<tr><td colspan="7" class="grid-empty">해당하는 청소년이 없습니다.</td></tr>`;return;}
+  tbody.innerHTML=withMeta.map(({m,meta},i)=>{
+    const areas=meta?.areas||[];
+    const areaLabels=areas.map(k=>REWARD_AREAS.find(a=>a.key===k)?.label||k).join(', ')||'-';
+    const photoCount=areas.reduce((s,k)=>s+((rewardAreaData[m.id]?.[k]?.photos||[]).length),0);
+    const maxPhoto=areas.length*4;
+    return `<tr>
+      <td class="col-no">${i+1}</td>
+      <td style="font-weight:700">${esc(m.name)}</td>
+      <td style="text-align:center">${esc((m.grade||'').replace('초등 ',''))}</td>
+      <td style="text-align:center">${meta?`<span class="bean-job-badge">${esc(meta.targetLevel)}</span>`:'<span style="color:var(--gray3)">미설정</span>'}</td>
+      <td style="font-size:11px;color:var(--gray5)">${esc(areaLabels)}</td>
+      <td style="text-align:center;font-size:11px;">${maxPhoto?`${photoCount}/${maxPhoto}장`:'-'}</td>
+      <td style="text-align:center"><div style="display:flex;gap:2px;justify-content:center;">
+        <button class="btn btn-xs btn-or" onclick="openRewardEdit('${m.id}')">편집</button>
+        <button class="btn btn-xs" onclick="printRewardEvidence('${m.id}')" ${meta?'':'disabled'}>🖨 인쇄</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function openRewardEdit(memberId){
+  const m=members.find(x=>x.id===memberId); if(!m) return;
+  const meta=rewardMeta[memberId]||{targetLevel:'동장',areas:[]};
+  const areaData=rewardAreaData[memberId]||{};
+  const data={};
+  REWARD_AREAS.forEach(a=>{ data[a.key]={content:(areaData[a.key]?.content)||'', photos:[...(areaData[a.key]?.photos||[])]}; });
+  _rewardEdit={memberId, targetLevel:meta.targetLevel||'동장', areas:[...(meta.areas||[])], data};
+  document.getElementById('rewardEditTitle').textContent=`🏅 ${m.name} — 성취포상제 관리`;
+  document.getElementById('rewardMemberId').value=memberId;
+  document.getElementById('rewardTargetLevel').value=_rewardEdit.targetLevel;
+  renderRewardAreaPicker();
+  renderRewardAreaSections();
+  document.getElementById('rewardEditModal').classList.add('show');
+}
+
+function renderRewardAreaPicker(){
+  const el=document.getElementById('rewardAreaPicker'); if(!el||!_rewardEdit) return;
+  el.innerHTML=REWARD_AREAS.map(a=>`<span class="etag${_rewardEdit.areas.includes(a.key)?' on':''}" onclick="toggleRewardArea('${a.key}')">${esc(a.label)}</span>`).join('');
+}
+function toggleRewardArea(key){
+  if(!_rewardEdit) return;
+  const idx=_rewardEdit.areas.indexOf(key);
+  if(idx>=0){ _rewardEdit.areas.splice(idx,1); }
+  else{
+    if(_rewardEdit.areas.length>=4){ toast('활동영역은 최대 4개까지 선택할 수 있어요','warn'); return; }
+    _rewardEdit.areas.push(key);
+  }
+  renderRewardAreaPicker();
+  renderRewardAreaSections();
+}
+function renderRewardAreaSections(){
+  const el=document.getElementById('rewardAreaSections'); if(!el||!_rewardEdit) return;
+  const selected=REWARD_AREAS.filter(a=>_rewardEdit.areas.includes(a.key));
+  if(selected.length===0){ el.innerHTML=`<div style="color:var(--gray3);font-size:11px;padding:10px 0;">위에서 활동영역을 선택하면 여기에 기록·사진 입력란이 나타납니다.</div>`; return; }
+  el.innerHTML=selected.map(a=>`
+    <div class="fp-section">
+      <div class="fp-header">🏷 ${esc(a.label)}</div>
+      <div class="fp-body">
+        <div class="mf-field" style="margin-bottom:8px;">
+          <label>활동 내용 (선택)</label>
+          <textarea rows="2" placeholder="활동 내용을 간단히 적어주세요" oninput="_rewardEdit.data['${a.key}'].content=this.value">${esc(_rewardEdit.data[a.key].content||'')}</textarea>
+        </div>
+        <label style="font-size:10px;color:var(--gray4);font-weight:700;display:block;margin-bottom:4px;">증빙사진 (최대 4장)</label>
+        <div class="reward-photo-grid" id="rewardPhotoGrid_${a.key}"></div>
+      </div>
+    </div>
+  `).join('');
+  selected.forEach(a=>renderRewardPhotoGrid(a.key));
+}
+function renderRewardPhotoGrid(key){
+  const el=document.getElementById('rewardPhotoGrid_'+key); if(!el||!_rewardEdit) return;
+  const photos=_rewardEdit.data[key].photos||[];
+  let html='';
+  for(let i=0;i<4;i++){
+    if(photos[i]){
+      html+=`<div class="reward-photo-slot filled"><img src="${photos[i]}"><span class="rps-del" onclick="event.stopPropagation();removeRewardPhoto('${key}',${i})">✕</span></div>`;
+    } else {
+      html+=`<div class="reward-photo-slot" onclick="triggerRewardPhotoUpload('${key}')"><span class="rps-add">＋</span></div>`;
+    }
+  }
+  el.innerHTML=html;
+}
+let _rewardPhotoTargetKey=null;
+function triggerRewardPhotoUpload(key){
+  _rewardPhotoTargetKey=key;
+  document.getElementById('rewardPhotoInput').click();
+}
+function compressImageFile(file, maxDim, quality){
+  return new Promise((resolve,reject)=>{
+    if(!file.type.startsWith('image/')){reject(new Error('이미지 파일만 가능')); return;}
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        if(w>maxDim||h>maxDim){ if(w>h){h=Math.round(h*maxDim/w);w=maxDim;} else {w=Math.round(w*maxDim/h);h=maxDim;} }
+        const canvas=document.createElement('canvas');
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg',quality));
+      };
+      img.onerror=()=>reject(new Error('이미지를 불러올 수 없습니다'));
+      img.src=ev.target.result;
+    };
+    reader.onerror=()=>reject(new Error('파일을 읽을 수 없습니다'));
+    reader.readAsDataURL(file);
+  });
+}
+document.getElementById('rewardPhotoInput').addEventListener('change', async e=>{
+  const key=_rewardPhotoTargetKey;
+  if(!key||!_rewardEdit){ e.target.value=''; return; }
+  const files=[...e.target.files];
+  const slotsLeft=4-(_rewardEdit.data[key].photos||[]).length;
+  for(const file of files.slice(0,slotsLeft)){
+    try{
+      const dataUrl=await compressImageFile(file, 900, .75);
+      _rewardEdit.data[key].photos.push(dataUrl);
+    }catch(err){ toast(err.message,'error'); }
+  }
+  renderRewardPhotoGrid(key);
+  e.target.value='';
+});
+function removeRewardPhoto(key, idx){
+  if(!_rewardEdit) return;
+  _rewardEdit.data[key].photos.splice(idx,1);
+  renderRewardPhotoGrid(key);
+}
+function saveReward(){
+  if(!_rewardEdit) return;
+  const memberId=_rewardEdit.memberId;
+  _rewardEdit.targetLevel=document.getElementById('rewardTargetLevel').value;
+  const batch=db.batch();
+  const mainRef=db.collection('rewards').doc(memberId);
+  batch.set(mainRef, {memberId, targetLevel:_rewardEdit.targetLevel, areas:_rewardEdit.areas, updatedAt:new Date().toISOString()});
+  REWARD_AREAS.forEach(a=>{
+    const ref=mainRef.collection('areaData').doc(a.key);
+    if(_rewardEdit.areas.includes(a.key)){
+      const d=_rewardEdit.data[a.key];
+      batch.set(ref, {content:d.content||'', photos:d.photos||[]});
+    } else {
+      batch.delete(ref);
+    }
+  });
+  batch.commit().then(()=>{
+    toast('✅ 저장되었습니다');
+    closeModal('rewardEditModal');
+    _rewardEdit=null;
+  }).catch(err=>toast('저장 실패: '+err.message,'error'));
+}
+function printRewardEvidence(memberId){
+  const m=members.find(x=>x.id===memberId); if(!m) return;
+  const meta=rewardMeta[memberId];
+  if(!meta){ toast('먼저 목표단계·활동영역을 저장해주세요','warn'); return; }
+  const areaData=rewardAreaData[memberId]||{};
+  const areas=REWARD_AREAS.filter(a=>(meta.areas||[]).includes(a.key));
+  const areasHtml=areas.map(a=>{
+    const d=areaData[a.key]||{content:'',photos:[]};
+    const photosHtml=(d.photos||[]).map(p=>`<img src="${p}" style="width:100%;aspect-ratio:4/3;object-fit:cover;border:1px solid #ccc;">`).join('')
+      || `<div style="grid-column:1/-1;color:#aaa;font-size:11px;padding:10px 0;">첨부된 사진이 없습니다</div>`;
+    return `<div style="margin-bottom:16px;page-break-inside:avoid;">
+      <div style="background:#1a5a35;color:#fff;padding:5px 10px;font-weight:700;font-size:13px;">${esc(a.label)}</div>
+      ${d.content?`<div style="padding:6px 10px;font-size:11px;white-space:pre-wrap;border:1px solid #eee;border-top:none;">${esc(d.content)}</div>`:''}
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:8px 10px;border:1px solid #eee;border-top:${d.content?'none':'0'};">${photosHtml}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('rewardPrintContent').innerHTML=`<div class="card-print" style="padding:18px 22px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1a5a35;padding-bottom:8px;margin-bottom:14px;">
+      <div>
+        <div style="font-size:9px;color:#888;letter-spacing:.05em;">${esc(settings.orgName||'')}</div>
+        <div style="font-size:17px;font-weight:700;color:#1a5a35;">청소년자기도전포상제 증빙자료</div>
+      </div>
+      <div style="text-align:right;font-size:11px;">
+        <div><strong>${esc(m.name)}</strong> (${esc(m.school||'')} ${esc(m.grade||'')})</div>
+        <div>목표단계: <strong style="color:#e8720c;">${esc(meta.targetLevel)}</strong></div>
+      </div>
+    </div>
+    ${areasHtml}
+    <div style="text-align:right;margin-top:20px;font-size:11px;color:#333;">
+      발급일: ${todayISO()} &nbsp;&nbsp;&nbsp; 지도교사: ______________ (서명)
+    </div>
+  </div>`;
+  document.getElementById('rewardPrintModal').classList.add('show');
 }
 
 // ── 대시보드 ──
