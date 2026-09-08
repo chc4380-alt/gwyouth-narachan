@@ -1364,7 +1364,7 @@ db.enablePersistence({synchronizeTabs:true}).catch(e=>console.warn('오프라인
 const SHARED_EMAIL = 'gwycc@hanmail.net'; // 공용 로그인 계정 — 실제 비밀번호는 코드에 없음(사용자가 PIN으로 입력)
 
 // ── 앱 버전 & GitHub 자동 업데이트 ──
-const APP_VERSION = '1.4.2';  // ← 업데이트할 때마다 이 숫자를 올려주세요
+const APP_VERSION = '1.4.3';  // ← 업데이트할 때마다 이 숫자를 올려주세요
 const GH_USER     = 'chc4380-alt';  // ← GitHub 사용자명
 const GH_REPO     = 'gwyouth-narachan'; // ← GitHub 저장소명
 const GH_BRANCH   = 'main';   // ← 브랜치명 (보통 main)
@@ -3002,7 +3002,6 @@ function printRewardEvidence(memberId){
   const areaCount=Math.max(areas.length,1);
   const slotMM=Math.floor(230/areaCount);
   const gridMM=Math.max(20,slotMM-14);
-  const CONTENT_W_MM=186; // A4 210mm - 좌우 padding 12mm*2
   const GAP_MM=3;
   const areasHtml=areas.map(a=>{
     const d=areaData[a.key]||{content:'',photos:[]};
@@ -3011,14 +3010,15 @@ function printRewardEvidence(memberId){
     if(photos.length===0){
       photoBlock=`<div style="color:#aaa;font-size:10px;padding:8px 0;text-align:center;border:1px solid #eee;border-top:none;">첨부된 사진이 없습니다</div>`;
     } else {
-      // CSS Grid의 퍼센트 높이 + object-fit 조합이 인쇄 렌더링에서 깨지는 경우가 있어,
-      // 각 사진에 절대 mm 크기를 직접 지정하는 방식으로 크기를 강제한다.
-      // flex+gap을 사용해 border/margin이 폭 계산에 더해져 줄바꿈되는 것을 방지(box-sizing:border-box 포함).
+      // 실제 인쇄 가능 너비는 프린터/브라우저 여백에 따라 달라질 수 있어(A4 210mm을 가정하면
+      // 프린터 기본 여백이 있는 경우 넘쳐서 줄바꿈됨), 폭은 절대 mm값이 아니라 컨테이너 대비
+      // 퍼센트로 지정해 실제 너비에 항상 맞도록 한다. 높이만 mm로 고정.
+      // box-sizing:border-box + flex gap으로 border/margin이 폭 계산에 더해지는 것도 방지.
       const cols=photos.length===1?1:2;
       const rows=Math.ceil(photos.length/cols);
-      const photoWmm=cols===1?CONTENT_W_MM:(CONTENT_W_MM-GAP_MM*(cols-1))/cols;
       const photoHmm=rows===1?gridMM:(gridMM-GAP_MM*(rows-1))/rows;
-      const imgs=photos.map(p=>`<img src="${p}" width="${Math.round(photoWmm*3.78)}" height="${Math.round(photoHmm*3.78)}" style="width:${photoWmm}mm;height:${photoHmm}mm;box-sizing:border-box;object-fit:cover;border:1px solid #ccc;display:block;flex:0 0 auto;">`).join('');
+      const photoWidthCss=cols===1?'100%':`calc(50% - ${GAP_MM/2}mm)`;
+      const imgs=photos.map(p=>`<img src="${p}" style="width:${photoWidthCss};height:${photoHmm}mm;box-sizing:border-box;object-fit:cover;border:1px solid #ccc;display:block;flex:0 0 auto;">`).join('');
       photoBlock=`<div style="display:flex;flex-wrap:wrap;gap:${GAP_MM}mm;padding:4px 0 0;">${imgs}</div>`;
     }
     return `<div style="margin-bottom:4mm;page-break-inside:avoid;">
