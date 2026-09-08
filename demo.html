@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>청소년방과후아카데미 인사카드</title>
+<title>청소년방과후아카데미 인사카드 (데모)</title>
 <style>
 /* ═══════════════════════════════════════════
    WorkSTORY ERP Style
@@ -535,41 +535,28 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
 <!-- 인쇄 전용 루트: 평소엔 비어있음, 인쇄 직전에만 내용이 채워짐 (body의 첫 자식이라 다른 숨김 요소의 레이아웃 공간에 영향받지 않음) -->
 <div id="printRoot"></div>
 
-<!-- ── 기관 코드(PIN) 입력 게이트 ── -->
-<div id="pinGate" style="position:fixed;inset:0;z-index:600;background:linear-gradient(135deg,#1a5a35,#0d3320);display:flex;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:6px;padding:32px 36px;width:280px;box-shadow:0 8px 30px rgba(0,0,0,.4);text-align:center;font-family:'Malgun Gothic',sans-serif;">
-    <div style="font-size:28px;margin-bottom:6px;">🔐</div>
-    <div style="font-size:14px;font-weight:700;color:#1a5a35;margin-bottom:4px;">청소년방과후아카데미</div>
-    <div style="font-size:11px;color:#888;margin-bottom:16px;">기관 코드를 입력해주세요</div>
-    <input type="password" id="pinInput" placeholder="코드 입력" autocomplete="off"
-      style="width:100%;padding:8px;border:1px solid #ccc;border-radius:3px;font-size:14px;text-align:center;letter-spacing:2px;margin-bottom:10px;box-sizing:border-box;"
-      onkeydown="if(event.key==='Enter')submitPin()">
-    <button style="width:100%;padding:8px;border:none;border-radius:3px;background:linear-gradient(to bottom,#f28c35,#e8720c);color:#fff;font-weight:700;font-size:13px;cursor:pointer;" onclick="submitPin()">입장하기</button>
-    <div id="pinError" style="color:#cc2200;font-size:11px;margin-top:8px;min-height:14px;"></div>
-  </div>
+<!-- ── 데모 안내 배너 ── -->
+<div style="background:linear-gradient(to right,#e8720c,#f28c35);color:#fff;text-align:center;padding:6px 10px;font-size:12px;font-weight:700;letter-spacing:.02em;">
+  🧪 데모(예시) 버전입니다 — 모든 데이터는 예시이며, 실제 학생 정보가 아니고 어디에도 저장되지 않습니다. (새로고침하면 초기 예시 데이터로 되돌아갑니다)
 </div>
 
 <!-- ── TITLE BAR ── -->
 <div class="title-bar">
   <span class="app-name">방과후아카데미</span>
   <span class="sep">|</span>
-  <span id="appSubTitle">광양시청소년문화센터</span>
+  <span id="appSubTitle">OO청소년센터 (예시)</span>
   <div class="menu-bar">
     <button class="menu-btn" onclick="openSettings()">설정(S)</button>
     <button class="menu-btn" onclick="downloadJsonBackup()">백업(B)</button>
     <button class="menu-btn" onclick="document.getElementById('importFile').click()">불러오기(L)</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-    <button class="menu-btn" onclick="if(confirm('로그아웃할까요? 다시 이용하려면 기관 코드를 입력해야 합니다.'))auth.signOut()">로그아웃</button>
   </div>
   <div class="title-bar-right">
-    <div id="updateBadge" class="title-save-badge" style="display:none;background:linear-gradient(to bottom,#4a9e4a,#2a7a2a);border-color:#1a5a1a;color:#fff;cursor:pointer;animation:updatePulse 1.5s infinite;" onclick="openUpdateModal()" title="새 버전이 있습니다">
-      <span>🆕</span> <span id="updateBadgeText">업데이트 있음</span>
+    <div id="sheetsBadge" class="title-save-badge unlinked" title="데모 버전에서는 비활성화되어 있습니다">
+      <span id="sheetsIcon">🧪</span> <span id="sheetsText">데모 버전</span>
     </div>
-    <div id="sheetsBadge" class="title-save-badge linked" onclick="openSheetsSetup()" title="GitHub 자동 업데이트 설정">
-      <span id="sheetsIcon">🔥</span> <span id="sheetsText">Firebase 연동됨</span>
-    </div>
-    <div id="fsBadge" class="title-save-badge linked" onclick="openStoragePanel()">
-      <span id="fsIcon">✅</span> <span id="fsText">실시간 저장</span>
+    <div id="fsBadge" class="title-save-badge unlinked" title="데모 버전에서는 아무 곳에도 저장되지 않습니다">
+      <span id="fsIcon">📴</span> <span id="fsText">저장 안 됨(데모)</span>
     </div>
   </div>
 </div>
@@ -1148,14 +1135,13 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
     <div class="modal-body">
       <div style="background:var(--gray0);border:1px solid var(--border);padding:8px 10px;margin-bottom:10px;font-size:11px;">
         <div style="font-size:10px;color:var(--gray3);margin-bottom:3px;">연결된 저장소</div>
-        <div style="font-weight:700;color:var(--gray6)" id="linkedFileName">Firebase (실시간 클라우드)</div>
+        <div style="font-weight:700;color:var(--gray6)" id="linkedFileName">데모 모드 (저장 안 됨)</div>
         <div style="font-size:10px;color:var(--gray3);margin-top:2px" id="linkedFileMeta"></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
         <button class="btn" onclick="openExistingFile()">📂 JSON 불러오기</button>
         <button class="btn" onclick="downloadJsonBackup()">📥 JSON 백업</button>
         <button class="btn" onclick="exportMembersCSV()">📊 CSV 내보내기</button>
-        <button class="btn" onclick="if(confirm('로그아웃할까요?'))auth.signOut()">🚪 로그아웃</button>
       </div>
       <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
         <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑 전체 데이터 초기화</button>
@@ -1341,34 +1327,34 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
 
 <div class="toast" id="toast"></div>
 
-<!-- ═══════════════════════ FIREBASE SDK (compat, classic script — no bundler needed) ═══════════════════════ -->
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-
-<!-- ═══════════════════════ SCRIPT ═══════════════════════ -->
+<!-- ═══════════════════════ SCRIPT (데모 버전 — 실제 백엔드 없음, 모든 데이터는 예시) ═══════════════════════ -->
 <script>
-// ── Firebase (실시간 데이터 저장소) ──
-const firebaseConfig = {
-  apiKey: "AIzaSyClJSrZB-WFYxnhit4UoBVdKX1BU2TfeKM",
-  authDomain: "gwyouth-eff41.firebaseapp.com",
-  projectId: "gwyouth-eff41",
-  storageBucket: "gwyouth-eff41.firebasestorage.app",
-  messagingSenderId: "366727197461",
-  appId: "1:366727197461:web:f16051b4ac181adca7af1c"
+// ── 데모용 가짜 Firebase: 아무 것도 실제로 저장/조회하지 않음 ──
+const firebase = { firestore: { FieldValue: { delete: () => '__DEMO_DELETED__' } } };
+function _mockChain(){
+  const c = {};
+  c.collection = () => _mockChain();
+  c.doc = () => _mockChain();
+  c.where = () => c;
+  c.get = () => Promise.resolve({ docs: [], exists: false, data: () => undefined });
+  c.set = () => Promise.resolve();
+  c.update = () => Promise.resolve();
+  c.delete = () => Promise.resolve();
+  c.onSnapshot = () => (() => {});
+  return c;
+}
+const db = {
+  collection: () => _mockChain(),
+  collectionGroup: () => _mockChain(),
+  batch: () => ({ set(){}, update(){}, delete(){}, commit: () => Promise.resolve() }),
 };
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-db.enablePersistence({synchronizeTabs:true}).catch(e=>console.warn('오프라인 캐시 비활성:',e.code));
-const SHARED_EMAIL = 'gwycc@hanmail.net'; // 공용 로그인 계정 — 실제 비밀번호는 코드에 없음(사용자가 PIN으로 입력)
 
-// ── 앱 버전 & GitHub 자동 업데이트 ──
-const APP_VERSION = '1.4.2';  // ← 업데이트할 때마다 이 숫자를 올려주세요
-const GH_USER     = 'chc4380-alt';  // ← GitHub 사용자명
-const GH_REPO     = 'gwyouth-narachan'; // ← GitHub 저장소명
-const GH_BRANCH   = 'main';   // ← 브랜치명 (보통 main)
-const GH_FILE     = 'index.html'; // ← GitHub에 올릴 파일명 (GitHub Pages 루트로 사용)
+// ── 앱 버전 & GitHub 자동 업데이트 (데모에서는 비활성화) ──
+const APP_VERSION = '1.4.1';
+const GH_USER     = '';
+const GH_REPO     = '';
+const GH_BRANCH   = 'main';
+const GH_FILE     = 'index.html';
 
 // GitHub Raw URL → getGhRawBase() 는 아래에서 정의됨
 
@@ -1520,18 +1506,15 @@ async function batchDeleteAll(collectionName){
 // JSON 백업 파일을 Firestore에 통째로 반영 (기존 데이터 전체 교체)
 async function applyPayload(d){
   if(!d||typeof d!=='object')throw new Error('잘못된 파일');
-  await Promise.all(['members','schedules','groups','jobs','beanTx','jobHistory','attendance'].map(c=>batchDeleteAll(c)));
-  if(d.members) await batchWriteAll('members', d.members);
-  if(d.schedules) await batchWriteAll('schedules', d.schedules);
-  if(d.groups) await batchWriteAll('groups', d.groups);
-  if(d.jobs) await batchWriteAll('jobs', d.jobs);
-  if(d.beanTx) await batchWriteAll('beanTx', d.beanTx);
-  if(d.jobHistory) await batchWriteAll('jobHistory', d.jobHistory);
-  if(d.attendance){
-    const entries=Object.keys(d.attendance).map(date=>({id:date,...d.attendance[date]}));
-    await batchWriteAll('attendance', entries);
-  }
-  if(d.settings) await db.collection('meta').doc('settings').set({...settings,...d.settings});
+  if(d.members)members=d.members;
+  if(d.schedules)schedules=d.schedules;
+  if(d.groups)groups=d.groups;
+  if(d.jobs)jobs=d.jobs;
+  if(d.beanTx)beanTx=d.beanTx;
+  if(d.jobHistory)jobHistory=d.jobHistory;
+  if(d.attendance)attendance=d.attendance;
+  if(d.settings)settings={...settings,...d.settings};
+  refreshCurrentTab();renderDashboard();updateHeader();
 }
 
 async function openExistingFile(){
@@ -1552,87 +1535,79 @@ async function importData(e){
 }
 function downloadJsonBackup(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(buildPayload(),null,2)],{type:'application/json'}));a.download=`방과후아카데미_백업_${todayISO()}.json`;a.click();toast('📥 JSON 백업 완료');}
 async function clearAllData(){
-  if(!confirm('전체 데이터를 초기화할까요? Firebase에 저장된 모든 데이터가 삭제되며 되돌릴 수 없습니다.'))return;
-  await Promise.all(['members','schedules','groups','jobs','beanTx','jobHistory','attendance'].map(c=>batchDeleteAll(c)));
-  toast('초기화 완료');
+  if(!confirm('예시 데이터를 모두 지울까요? (데모 모드: 새로고침하면 다시 채워집니다)'))return;
+  members=[];schedules=[];attendance={};groups=[];jobs=[];beanTx=[];jobHistory=[];rewardMeta={};rewardAreaData={};
+  refreshCurrentTab();renderDashboard();updateHeader();
+  toast('초기화 완료 (새로고침하면 예시 데이터로 복원됩니다)');
 }
 function updateStorageUI(){
   const fn=document.getElementById('linkedFileName'),fm=document.getElementById('linkedFileMeta');
-  if(fn)fn.textContent='Firebase (실시간 클라우드)';
-  if(fm)fm.textContent=`청소년 ${members.length}명 · 일정 ${schedules.length}건 · 로그인: ${auth.currentUser?auth.currentUser.email:'-'}`;
+  if(fn)fn.textContent='데모 모드 (저장 안 됨)';
+  if(fm)fm.textContent=`청소년 ${members.length}명 · 일정 ${schedules.length}건`;
 }
 function openStoragePanel(){updateStorageUI();document.getElementById('storageModal').classList.add('show');}
 
-// ── 기관 코드(PIN) 로그인 게이트 ──
-function submitPin(){
-  const pin=document.getElementById('pinInput').value;
-  const errEl=document.getElementById('pinError');
-  if(!pin){errEl.textContent='코드를 입력해주세요';return;}
-  errEl.textContent='확인 중...';
-  auth.signInWithEmailAndPassword(SHARED_EMAIL, pin).catch(err=>{
-    errEl.textContent = ['auth/wrong-password','auth/invalid-credential','auth/invalid-login-credentials'].includes(err.code) ? '코드가 올바르지 않습니다' : '오류: '+err.message;
-  });
+// ── 데모용 예시 데이터 (실제 학생 정보 아님, 저장되지 않음) ──
+function seedDemoData(){
+  settings={orgName:'OO청소년센터 (예시)',programName:'청소년방과후아카데미',advisorName:'홍길동 지도사',year:'2026'};
+
+  groups=[
+    {id:'g_demo1',name:'꿈나무반',desc:'초등 저학년',memberIds:['m_demo1','m_demo2','m_demo3']},
+    {id:'g_demo2',name:'별빛반',desc:'초등 고학년',memberIds:['m_demo4','m_demo5']},
+  ];
+
+  members=[
+    {id:'m_demo1',photo:'',name:'김민준',nameEn:'',gender:'남',birthdate:'2016-03-14',phone:'',address:'',school:'예시초등학교',grade:'초등 3학년',guardianName:'김철수',guardianRel:'부',guardianPhone:'010-0000-0001',emergencyPhone:'',joinDate:'2025-03-01',status:'활동중',activeYear:'2026',groupName:'꿈나무반',dream:'과학자',motto:'꾸준함이 답이다',goalText:'',interests:['과학','독서'],advisorNote:'',history:'',defaultSign:'',createdAt:new Date().toISOString()},
+    {id:'m_demo2',photo:'',name:'이서연',nameEn:'',gender:'여',birthdate:'2016-07-22',phone:'',address:'',school:'예시초등학교',grade:'초등 3학년',guardianName:'이영희',guardianRel:'모',guardianPhone:'010-0000-0002',emergencyPhone:'',joinDate:'2025-03-01',status:'활동중',activeYear:'2026',groupName:'꿈나무반',dream:'화가',motto:'',goalText:'',interests:['미술'],advisorNote:'',history:'',defaultSign:'',createdAt:new Date().toISOString()},
+    {id:'m_demo3',photo:'',name:'박도윤',nameEn:'',gender:'남',birthdate:'2015-11-05',phone:'',address:'',school:'예시초등학교',grade:'초등 4학년',guardianName:'박민수',guardianRel:'부',guardianPhone:'010-0000-0003',emergencyPhone:'',joinDate:'2025-03-01',status:'활동중',activeYear:'2026',groupName:'꿈나무반',dream:'축구선수',motto:'',goalText:'',interests:['운동'],advisorNote:'',history:'',defaultSign:'',createdAt:new Date().toISOString()},
+    {id:'m_demo4',photo:'',name:'최지우',nameEn:'',gender:'여',birthdate:'2014-05-18',phone:'',address:'',school:'예시초등학교',grade:'초등 5학년',guardianName:'최은정',guardianRel:'모',guardianPhone:'010-0000-0004',emergencyPhone:'',joinDate:'2024-03-01',status:'활동중',activeYear:'2026',groupName:'별빛반',dream:'선생님',motto:'',goalText:'',interests:['음악'],advisorNote:'',history:'',defaultSign:'',createdAt:new Date().toISOString()},
+    {id:'m_demo5',photo:'',name:'정하윤',nameEn:'',gender:'여',birthdate:'2014-09-30',phone:'',address:'',school:'예시초등학교',grade:'초등 6학년',guardianName:'정수민',guardianRel:'모',guardianPhone:'010-0000-0005',emergencyPhone:'',joinDate:'2024-03-01',status:'활동중',activeYear:'2026',groupName:'별빛반',dream:'요리사',motto:'',goalText:'',interests:['요리'],advisorNote:'',history:'',defaultSign:'',createdAt:new Date().toISOString()},
+    {id:'m_demo6',photo:'',name:'윤태양',nameEn:'',gender:'남',birthdate:'2013-02-10',phone:'',address:'',school:'예시중학교',grade:'중등 1학년',guardianName:'',guardianRel:'',guardianPhone:'',emergencyPhone:'',joinDate:'2023-03-01',status:'휴원',activeYear:'2026',groupName:'',dream:'',motto:'',goalText:'',interests:[],advisorNote:'',history:'',defaultSign:'',createdAt:new Date().toISOString()},
+  ];
+
+  const today=todayISO();
+  const d1=new Date();d1.setDate(d1.getDate()+7);const nextWeekISO=`${d1.getFullYear()}-${String(d1.getMonth()+1).padStart(2,'0')}-${String(d1.getDate()).padStart(2,'0')}`;
+  const d2=new Date();d2.setDate(d2.getDate()+9);const campEndISO=`${d2.getFullYear()}-${String(d2.getMonth()+1).padStart(2,'0')}-${String(d2.getDate()).padStart(2,'0')}`;
+
+  schedules=[
+    {id:'s_demo1',title:'나라찬 집단상담',date:today,endDate:today,time:'14:00~16:00',location:'OO청소년센터 2층 상담실',content:'또래관계 향상을 위한 집단상담 프로그램',note:'필기구 지참'},
+    {id:'s_demo2',title:'청소년어울림마당',date:nextWeekISO,endDate:nextWeekISO,time:'10:00~13:00',location:'OO청소년센터 다목적홀',content:'',note:''},
+    {id:'s_demo3',title:'여름 캠프 (1박 2일)',date:nextWeekISO,endDate:campEndISO,time:'',location:'',content:'',note:''},
+  ];
+
+  jobs=[
+    {id:'j_demo1',name:'은행원',wage:100,desc:'나라찬 은행 업무 담당',memberIds:['m_demo1']},
+    {id:'j_demo2',name:'환경미화원',wage:80,desc:'교실 정리정돈 담당',memberIds:['m_demo2','m_demo3']},
+  ];
+
+  beanTx=[
+    {id:'tx_demo1',memberId:'m_demo1',type:'plus',amount:100,memo:'[은행원] 1월 월급',date:today},
+    {id:'tx_demo2',memberId:'m_demo1',type:'minus',amount:35,memo:'[세금] 소득세20+자릿세5+전기세4+수도세4+건강보험료2',date:today},
+    {id:'tx_demo3',memberId:'m_demo2',type:'plus',amount:50,memo:'우수 활동 보상',date:today},
+  ];
+
+  jobHistory=[
+    {id:'jh_demo1',memberId:'m_demo1',jobId:'j_demo1',jobName:'은행원',action:'취직',date:today},
+  ];
+
+  attendance={
+    [today]:{scheduleId:'s_demo1',byMember:{m_demo1:'present',m_demo2:'present',m_demo3:'late'},signatures:{}}
+  };
+
+  rewardMeta={
+    m_demo4:{memberId:'m_demo4',targetLevel:'은장',areas:['self','volun']}
+  };
+  rewardAreaData={
+    m_demo4:{self:{content:'매주 독서 30분 실천',photos:[]},volun:{content:'지역아동센터 봉사활동',photos:[]}}
+  };
 }
-let _appStarted=false;
-auth.onAuthStateChanged(user=>{
-  const gate=document.getElementById('pinGate');
-  if(user){
-    gate.style.display='none';
-    startApp();
-  } else {
-    gate.style.display='flex';
-    const pi=document.getElementById('pinInput'); if(pi) pi.value='';
-  }
-});
 
-// ── 로그인 후 앱 시작: Firestore 실시간 리스너 연결 ──
+// ── 데모 시작: 로그인 없이 바로 예시 데이터로 실행 ──
 function startApp(){
-  if(_appStarted)return; _appStarted=true;
-  db.collection('members').onSnapshot(snap=>{ members=snap.docs.map(d=>d.data()); refreshCurrentTab(); renderDashboard(); }, e=>console.error('members sync', e));
-  db.collection('schedules').onSnapshot(snap=>{ schedules=snap.docs.map(d=>d.data()); refreshCurrentTab(); }, e=>console.error('schedules sync', e));
-  db.collection('groups').onSnapshot(snap=>{ groups=snap.docs.map(d=>d.data()); renderListGroupTabs(); refreshAttendGroupSel(); refreshCurrentTab(); }, e=>console.error('groups sync', e));
-  db.collection('jobs').onSnapshot(snap=>{ jobs=snap.docs.map(d=>d.data()); refreshCurrentTab(); }, e=>console.error('jobs sync', e));
-  db.collection('beanTx').onSnapshot(snap=>{ beanTx=snap.docs.map(d=>d.data()); refreshCurrentTab(); }, e=>console.error('beanTx sync', e));
-  db.collection('jobHistory').onSnapshot(snap=>{ jobHistory=snap.docs.map(d=>d.data()); }, e=>console.error('jobHistory sync', e));
-  db.collection('attendance').onSnapshot(snap=>{
-    attendance={};
-    snap.docs.forEach(d=>{ attendance[d.id]=d.data(); });
-    renderSignbookFromUI();
-    const date=document.getElementById('attendDate')?.value;
-    if(date) renderAttendStat(date);
-  }, e=>console.error('attendance sync', e));
-  db.collection('meta').doc('settings').onSnapshot(doc=>{
-    if(doc.exists) settings={...settings,...doc.data()};
-    updateHeader();
-  }, e=>console.error('settings sync', e));
-  db.collection('rewards').onSnapshot(snap=>{
-    rewardMeta={};
-    snap.docs.forEach(d=>{ rewardMeta[d.id]=d.data(); });
-    if(document.querySelector('.tb-btn[data-tab="reward"]')?.classList.contains('active')) renderRewardList();
-  }, e=>console.error('rewards sync', e));
-  db.collectionGroup('areaData').onSnapshot(snap=>{
-    rewardAreaData={};
-    snap.docs.forEach(d=>{
-      const memberId=d.ref.parent.parent.id;
-      if(!rewardAreaData[memberId]) rewardAreaData[memberId]={};
-      rewardAreaData[memberId][d.id]=d.data();
-    });
-    if(document.querySelector('.tb-btn[data-tab="reward"]')?.classList.contains('active')) renderRewardList();
-  }, e=>console.error('rewardAreaData sync', e));
-
-  window.addEventListener('online', ()=>setFSBadge(true));
-  window.addEventListener('offline', ()=>setFSBadge(false));
-  setFSBadge(navigator.onLine);
-
+  seedDemoData();
   updateHeader();renderDashboard();renderListGroupTabs();refreshAttendGroupSel();
-  checkForUpdates(true);
-  setInterval(()=>checkForUpdates(true), 60*60*1000);
   setTimeout(()=>{
-    const now=new Date(),todayStr=todayISO();
-    const bdayToday=members.filter(m=>{const md=getMonthDay(m.birthdate);return md&&md.month===now.getMonth()+1&&md.day===now.getDate();});
-    const todaySch=schedules.filter(s=>s.date<=todayStr&&todayStr<=(s.endDate||s.date));
-    if(bdayToday.length>0)toast(`🎉 오늘은 ${bdayToday.map(m=>m.name).join(', ')}님 생일!`);
-    if(todaySch.length>0)setTimeout(()=>toast(`🔔 오늘 일정: ${todaySch.map(s=>s.title).join(', ')}`),3500);
+    toast('🧪 데모 버전입니다 — 예시 데이터로 자유롭게 둘러보세요 (저장되지 않음)');
   },700);
 }
 function setFSBadge(online){
@@ -3002,24 +2977,17 @@ function printRewardEvidence(memberId){
   const areaCount=Math.max(areas.length,1);
   const slotMM=Math.floor(230/areaCount);
   const gridMM=Math.max(20,slotMM-14);
-  const CONTENT_W_MM=186; // A4 210mm - 좌우 padding 12mm*2
-  const GAP_MM=3;
   const areasHtml=areas.map(a=>{
     const d=areaData[a.key]||{content:'',photos:[]};
-    const photos=(d.photos||[]).slice(0,4);
+    const photos=d.photos||[];
     let photoBlock;
     if(photos.length===0){
       photoBlock=`<div style="color:#aaa;font-size:10px;padding:8px 0;text-align:center;border:1px solid #eee;border-top:none;">첨부된 사진이 없습니다</div>`;
     } else {
-      // CSS Grid의 퍼센트 높이 + object-fit 조합이 인쇄 렌더링에서 깨지는 경우가 있어,
-      // 각 사진에 절대 mm 크기를 직접 지정하는 방식으로 크기를 강제한다.
-      // flex+gap을 사용해 border/margin이 폭 계산에 더해져 줄바꿈되는 것을 방지(box-sizing:border-box 포함).
       const cols=photos.length===1?1:2;
       const rows=Math.ceil(photos.length/cols);
-      const photoWmm=cols===1?CONTENT_W_MM:(CONTENT_W_MM-GAP_MM*(cols-1))/cols;
-      const photoHmm=rows===1?gridMM:(gridMM-GAP_MM*(rows-1))/rows;
-      const imgs=photos.map(p=>`<img src="${p}" width="${Math.round(photoWmm*3.78)}" height="${Math.round(photoHmm*3.78)}" style="width:${photoWmm}mm;height:${photoHmm}mm;box-sizing:border-box;object-fit:cover;border:1px solid #ccc;display:block;flex:0 0 auto;">`).join('');
-      photoBlock=`<div style="display:flex;flex-wrap:wrap;gap:${GAP_MM}mm;padding:4px 0 0;">${imgs}</div>`;
+      const imgs=photos.map(p=>`<img src="${p}" style="width:100%;height:100%;object-fit:cover;border:1px solid #ccc;display:block;">`).join('');
+      photoBlock=`<div style="display:grid;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);gap:4px;height:${gridMM}mm;padding:4px 0 0;">${imgs}</div>`;
     }
     return `<div style="margin-bottom:4mm;page-break-inside:avoid;">
       <div style="background:#1a5a35;color:#fff;padding:4px 10px;font-weight:700;font-size:12px;">${esc(a.label)}</div>
@@ -3164,8 +3132,8 @@ function renderStats(){
 // ── CSV ──
 function exportMembersCSV(){if(members.length===0){toast('내보낼 데이터 없음','warn');return;}const h=['순번','이름','이름(영문)','성별','생년월일','학교','학년','반/그룹','본인연락처','주소','보호자성명','관계','보호자연락처','비상연락망','입원일','상태','활동연도','꿈/희망','좌우명','올해목표','관심분야','활동이력','지도사메모'];const rows=members.map((m,i)=>[i+1,m.name||'',m.nameEn||'',m.gender||'',m.birthdate||'',m.school||'',m.grade||'',m.groupName||'',m.phone||'',m.address||'',m.guardianName||'',m.guardianRel||'',m.guardianPhone||'',m.emergencyPhone||'',m.joinDate||'',m.status||'활동중',m.activeYear||'',m.dream||'',m.motto||'',m.goalText||'',(m.interests||[]).join(' / '),m.history||'',m.advisorNote||'']);const csv='\uFEFF'+[h,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download=`방과후아카데미_명단_${todayISO()}.csv`;a.click();toast('📊 CSV 다운로드 완료');}
 
-// ── 초기화: 로그인(auth.onAuthStateChanged) 성공 시 startApp()이 호출되어
-//    Firestore 리스너 연결 및 위 초기화 로직을 실행함 ──
+// ── 초기화: 데모는 로그인 없이 바로 예시 데이터로 시작 ──
+startApp();
 </script>
 </body>
 </html>
