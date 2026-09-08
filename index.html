@@ -1364,7 +1364,7 @@ db.enablePersistence({synchronizeTabs:true}).catch(e=>console.warn('오프라인
 const SHARED_EMAIL = 'gwycc@hanmail.net'; // 공용 로그인 계정 — 실제 비밀번호는 코드에 없음(사용자가 PIN으로 입력)
 
 // ── 앱 버전 & GitHub 자동 업데이트 ──
-const APP_VERSION = '1.4.3';  // ← 업데이트할 때마다 이 숫자를 올려주세요
+const APP_VERSION = '1.4.4';  // ← 업데이트할 때마다 이 숫자를 올려주세요
 const GH_USER     = 'chc4380-alt';  // ← GitHub 사용자명
 const GH_REPO     = 'gwyouth-narachan'; // ← GitHub 저장소명
 const GH_BRANCH   = 'main';   // ← 브랜치명 (보통 main)
@@ -3000,8 +3000,8 @@ function printRewardEvidence(memberId){
   const areaData=rewardAreaData[memberId]||{};
   const areas=REWARD_AREAS.filter(a=>(meta.areas||[]).includes(a.key));
   const areaCount=Math.max(areas.length,1);
-  const slotMM=Math.floor(230/areaCount);
-  const gridMM=Math.max(20,slotMM-14);
+  const slotMM=Math.floor(240/areaCount);
+  const gridMM=Math.max(20,slotMM-13);
   const GAP_MM=3;
   const areasHtml=areas.map(a=>{
     const d=areaData[a.key]||{content:'',photos:[]};
@@ -3018,7 +3018,7 @@ function printRewardEvidence(memberId){
       const rows=Math.ceil(photos.length/cols);
       const photoHmm=rows===1?gridMM:(gridMM-GAP_MM*(rows-1))/rows;
       const photoWidthCss=cols===1?'100%':`calc(50% - ${GAP_MM/2}mm)`;
-      const imgs=photos.map(p=>`<img src="${p}" style="width:${photoWidthCss};height:${photoHmm}mm;box-sizing:border-box;object-fit:cover;border:1px solid #ccc;display:block;flex:0 0 auto;">`).join('');
+      const imgs=photos.map(p=>`<img src="${p}" style="width:${photoWidthCss};height:${photoHmm}mm;box-sizing:border-box;object-fit:fill;border:1px solid #ccc;display:block;flex:0 0 auto;">`).join('');
       photoBlock=`<div style="display:flex;flex-wrap:wrap;gap:${GAP_MM}mm;padding:4px 0 0;">${imgs}</div>`;
     }
     return `<div style="margin-bottom:4mm;page-break-inside:avoid;">
