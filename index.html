@@ -1270,7 +1270,7 @@ db.enablePersistence({synchronizeTabs:true}).catch(e=>console.warn('오프라인
 const SHARED_EMAIL = 'gwycc@hanmail.net'; // 공용 로그인 계정 — 실제 비밀번호는 코드에 없음(사용자가 PIN으로 입력)
 
 // ── 앱 버전 & GitHub 자동 업데이트 ──
-const APP_VERSION = '1.2.1';  // ← 업데이트할 때마다 이 숫자를 올려주세요
+const APP_VERSION = '1.2.2';  // ← 업데이트할 때마다 이 숫자를 올려주세요
 const GH_USER     = 'chc4380-alt';  // ← GitHub 사용자명
 const GH_REPO     = 'gwyouth-narachan'; // ← GitHub 저장소명
 const GH_BRANCH   = 'main';   // ← 브랜치명 (보통 main)
@@ -2000,13 +2000,10 @@ function renderSignbook(date){
   const rec=attendance[date]||{byMember:{},signatures:{}};
   const byM=rec.byMember||{},sigs=rec.signatures||{};
 
-  // 일시 표시: 1박 2일 이상 일정이면 전체 기간과 며칠차인지 함께 표시
-  let dateInfo=dateFmtKr(date)+(sch&&sch.time?' '+esc(sch.time):'');
-  if(sch&&sch.endDate&&sch.endDate!==sch.date){
-    const days=eachDateInRange(sch.date,sch.endDate);
-    const dayIdx=days.indexOf(date)+1;
-    dateInfo+=` <span style="font-weight:400;font-size:9px;color:#555;">(전체일정 ${sch.date}~${sch.endDate}${dayIdx>0?`, ${dayIdx}/${days.length}일차`:''})</span>`;
-  }
+  // 일시 표시: 1박 2일 이상 일정이면 기간으로, 아니면 하루만 표시
+  const dateInfo=(sch&&sch.endDate&&sch.endDate!==sch.date)
+    ? `${dateFmtKr(sch.date)} ~ ${dateFmtKr(sch.endDate)}${sch.time?' '+esc(sch.time):''}`
+    : dateFmtKr(date)+(sch&&sch.time?' '+esc(sch.time):'');
 
   // 활동 유형 & 행사명 & 반 이름
   const actTypeSel=document.getElementById('attendActType').value;
