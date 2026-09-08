@@ -487,6 +487,8 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
 ::-webkit-scrollbar-thumb{background:var(--gray2);border-radius:1px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--gray3);}
 
+#printRoot{display:none;}
+
 /* 인쇄 */
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
@@ -494,6 +496,8 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
   body *{visibility:hidden;}
   .card-print,.card-print *,.signbook,.signbook *{visibility:visible;}
   .card-print{position:fixed;left:0;top:0;width:100%;border:none;}
+  #printRoot{display:block!important;position:static;width:100%;}
+  #printRoot,#printRoot *{visibility:visible;}
   .signbook{
     position:fixed;left:0;top:0;
     width:100%;height:100%;
@@ -527,6 +531,9 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
 </style>
 </head>
 <body>
+
+<!-- 인쇄 전용 루트: 평소엔 비어있음, 인쇄 직전에만 내용이 채워짐 (body의 첫 자식이라 다른 숨김 요소의 레이아웃 공간에 영향받지 않음) -->
+<div id="printRoot"></div>
 
 <!-- ── 기관 코드(PIN) 입력 게이트 ── -->
 <div id="pinGate" style="position:fixed;inset:0;z-index:600;background:linear-gradient(135deg,#1a5a35,#0d3320);display:flex;align-items:center;justify-content:center;">
@@ -1357,7 +1364,7 @@ db.enablePersistence({synchronizeTabs:true}).catch(e=>console.warn('오프라인
 const SHARED_EMAIL = 'gwycc@hanmail.net'; // 공용 로그인 계정 — 실제 비밀번호는 코드에 없음(사용자가 PIN으로 입력)
 
 // ── 앱 버전 & GitHub 자동 업데이트 ──
-const APP_VERSION = '1.4.0';  // ← 업데이트할 때마다 이 숫자를 올려주세요
+const APP_VERSION = '1.4.1';  // ← 업데이트할 때마다 이 숫자를 올려주세요
 const GH_USER     = 'chc4380-alt';  // ← GitHub 사용자명
 const GH_REPO     = 'gwyouth-narachan'; // ← GitHub 저장소명
 const GH_BRANCH   = 'main';   // ← 브랜치명 (보통 main)
@@ -1645,7 +1652,7 @@ function bd6(bd){if(!bd)return '-';const d=new Date(bd);return String(d.getFullY
 function uid(){return 'm_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);}
 function schUid(){return 's_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);}
 function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast show ${type}`;setTimeout(()=>t.className='toast',3000);}
-function closeModal(id){document.getElementById(id).classList.remove('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');const pr=document.getElementById('printRoot');if(pr)pr.innerHTML='';}
 
 // ── 탭 ──
 const VIEWS={dashboard:'view-dashboard',list:'view-list',add:'view-add',groups:'view-groups',narakong:'view-narakong',reward:'view-reward',schedule:'view-schedule',attend:'view-attend',stats:'view-stats'};
@@ -3013,7 +3020,7 @@ function printRewardEvidence(memberId){
       ${photoBlock}
     </div>`;
   }).join('');
-  document.getElementById('rewardPrintContent').innerHTML=`<div class="card-print" style="padding:18px 22px;">
+  const bodyHtml=`
     <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1a5a35;padding-bottom:8px;margin-bottom:14px;">
       <div>
         <div style="font-size:9px;color:#888;letter-spacing:.05em;">${esc(settings.orgName||'')}</div>
@@ -3027,10 +3034,14 @@ function printRewardEvidence(memberId){
     ${areasHtml}
     <div style="text-align:right;margin-top:20px;font-size:11px;color:#333;">
       발급일: ${todayISO()} &nbsp;&nbsp;&nbsp; 지도교사: ______________ (서명)
-    </div>
-  </div>`;
+    </div>`;
+  // 화면 미리보기 (모달 안, 일반 문서 흐름)
+  document.getElementById('rewardPrintContent').innerHTML=`<div style="background:#fff;padding:18px 22px;">${bodyHtml}</div>`;
+  // 실제 인쇄용 (body 최상단의 전용 컨테이너 — position:fixed를 쓰지 않아 여러 섹션이 있어도 안전하게 한 페이지에 인쇄됨)
+  document.getElementById('printRoot').innerHTML=`<div style="padding:10mm 12mm;">${bodyHtml}</div>`;
   document.getElementById('rewardPrintModal').classList.add('show');
 }
+window.addEventListener('afterprint', ()=>{ const pr=document.getElementById('printRoot'); if(pr) pr.innerHTML=''; });
 
 // ── 대시보드 ──
 function renderDashboard(){
