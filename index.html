@@ -999,10 +999,11 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
       <input type="hidden" id="rewardMemberId">
       <div class="mf-field" style="margin-bottom:12px;max-width:200px;">
         <label>목표 단계</label>
-        <select id="rewardTargetLevel">
-          <option value="동장">동장</option>
-          <option value="은장">은장</option>
-          <option value="금장">금장</option>
+        <select id="rewardTargetLevel" onchange="updateRewardLevelSelectStyle(this)">
+          <option value="">미설정</option>
+          <option value="동장">🥉 동장</option>
+          <option value="은장">🥈 은장</option>
+          <option value="금장">🥇 금장</option>
         </select>
       </div>
       <div class="mf-field" style="margin-bottom:14px;">
@@ -1356,7 +1357,7 @@ db.enablePersistence({synchronizeTabs:true}).catch(e=>console.warn('오프라인
 const SHARED_EMAIL = 'gwycc@hanmail.net'; // 공용 로그인 계정 — 실제 비밀번호는 코드에 없음(사용자가 PIN으로 입력)
 
 // ── 앱 버전 & GitHub 자동 업데이트 ──
-const APP_VERSION = '1.3.1';  // ← 업데이트할 때마다 이 숫자를 올려주세요
+const APP_VERSION = '1.4.0';  // ← 업데이트할 때마다 이 숫자를 올려주세요
 const GH_USER     = 'chc4380-alt';  // ← GitHub 사용자명
 const GH_REPO     = 'gwyouth-narachan'; // ← GitHub 저장소명
 const GH_BRANCH   = 'main';   // ← 브랜치명 (보통 main)
@@ -2826,7 +2827,7 @@ function renderRewardList(){
       <td class="col-no">${i+1}</td>
       <td style="font-weight:700">${esc(m.name)}</td>
       <td style="text-align:center">${esc((m.grade||'').replace('초등 ',''))}</td>
-      <td style="text-align:center">${meta?`<span class="bean-job-badge">${esc(meta.targetLevel)}</span>`:'<span style="color:var(--gray3)">미설정</span>'}</td>
+      <td style="text-align:center">${rewardLevelBadge(meta&&meta.targetLevel)}</td>
       <td style="font-size:11px;color:var(--gray5)">${esc(areaLabels)}</td>
       <td style="text-align:center;font-size:11px;">${maxPhoto?`${photoCount}/${maxPhoto}장`:'-'}</td>
       <td style="text-align:center"><div style="display:flex;gap:2px;justify-content:center;">
@@ -2837,16 +2838,35 @@ function renderRewardList(){
   }).join('');
 }
 
+const REWARD_LEVEL_STYLE={
+  '금장':{bg:'#fff3cd',fg:'#7a5b00',border:'#e0b400',icon:'🥇'},
+  '은장':{bg:'#eef1f4',fg:'#555',border:'#b0b8c0',icon:'🥈'},
+  '동장':{bg:'#fbe6d8',fg:'#8a4a1a',border:'#c97a3f',icon:'🥉'}
+};
+function rewardLevelBadge(level){
+  const c=REWARD_LEVEL_STYLE[level];
+  if(!c) return '<span style="color:var(--gray3);font-size:10px;">미설정</span>';
+  return `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;background:${c.bg};color:${c.fg};border:1px solid ${c.border};">${c.icon} ${esc(level)}</span>`;
+}
+function updateRewardLevelSelectStyle(el){
+  const c=REWARD_LEVEL_STYLE[el.value];
+  el.style.background=c?c.bg:'';
+  el.style.color=c?c.fg:'';
+  el.style.fontWeight=c?'700':'400';
+  el.style.borderColor=c?c.border:'';
+}
 function openRewardEdit(memberId){
   const m=members.find(x=>x.id===memberId); if(!m) return;
-  const meta=rewardMeta[memberId]||{targetLevel:'동장',areas:[]};
+  const meta=rewardMeta[memberId]||{targetLevel:'',areas:[]};
   const areaData=rewardAreaData[memberId]||{};
   const data={};
   REWARD_AREAS.forEach(a=>{ data[a.key]={content:(areaData[a.key]?.content)||'', photos:[...(areaData[a.key]?.photos||[])]}; });
-  _rewardEdit={memberId, targetLevel:meta.targetLevel||'동장', areas:[...(meta.areas||[])], data};
+  _rewardEdit={memberId, targetLevel:meta.targetLevel||'', areas:[...(meta.areas||[])], data};
   document.getElementById('rewardEditTitle').textContent=`🏅 ${m.name} — 성취포상제 관리`;
   document.getElementById('rewardMemberId').value=memberId;
-  document.getElementById('rewardTargetLevel').value=_rewardEdit.targetLevel;
+  const levelSel=document.getElementById('rewardTargetLevel');
+  levelSel.value=_rewardEdit.targetLevel;
+  updateRewardLevelSelectStyle(levelSel);
   renderRewardAreaPicker();
   renderRewardAreaSections();
   document.getElementById('rewardEditModal').classList.add('show');
@@ -2972,21 +2992,24 @@ function printRewardEvidence(memberId){
   if(!meta){ toast('먼저 목표단계·활동영역을 저장해주세요','warn'); return; }
   const areaData=rewardAreaData[memberId]||{};
   const areas=REWARD_AREAS.filter(a=>(meta.areas||[]).includes(a.key));
-  const areasHtml=areas.map((a,idx)=>{
+  const areaCount=Math.max(areas.length,1);
+  const slotMM=Math.floor(230/areaCount);
+  const gridMM=Math.max(20,slotMM-14);
+  const areasHtml=areas.map(a=>{
     const d=areaData[a.key]||{content:'',photos:[]};
     const photos=d.photos||[];
     let photoBlock;
     if(photos.length===0){
-      photoBlock=`<div style="color:#aaa;font-size:11px;padding:16px 0;text-align:center;border:1px solid #eee;border-top:none;">첨부된 사진이 없습니다</div>`;
+      photoBlock=`<div style="color:#aaa;font-size:10px;padding:8px 0;text-align:center;border:1px solid #eee;border-top:none;">첨부된 사진이 없습니다</div>`;
     } else {
       const cols=photos.length===1?1:2;
       const rows=Math.ceil(photos.length/cols);
       const imgs=photos.map(p=>`<img src="${p}" style="width:100%;height:100%;object-fit:cover;border:1px solid #ccc;display:block;">`).join('');
-      photoBlock=`<div style="display:grid;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);gap:8px;height:225mm;padding:8px 0 0;">${imgs}</div>`;
+      photoBlock=`<div style="display:grid;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);gap:4px;height:${gridMM}mm;padding:4px 0 0;">${imgs}</div>`;
     }
-    return `<div style="${idx>0?'page-break-before:always;padding-top:10mm;':''}page-break-inside:avoid;">
-      <div style="background:#1a5a35;color:#fff;padding:6px 12px;font-weight:700;font-size:14px;">${esc(a.label)}</div>
-      ${d.content?`<div style="padding:6px 12px;font-size:11px;white-space:pre-wrap;border:1px solid #eee;border-top:none;">${esc(d.content)}</div>`:''}
+    return `<div style="margin-bottom:4mm;page-break-inside:avoid;">
+      <div style="background:#1a5a35;color:#fff;padding:4px 10px;font-weight:700;font-size:12px;">${esc(a.label)}</div>
+      ${d.content?`<div style="padding:3px 10px;font-size:10px;white-space:pre-wrap;border:1px solid #eee;border-top:none;">${esc(d.content)}</div>`:''}
       ${photoBlock}
     </div>`;
   }).join('');
@@ -2998,7 +3021,7 @@ function printRewardEvidence(memberId){
       </div>
       <div style="text-align:right;font-size:11px;">
         <div><strong>${esc(m.name)}</strong> (${esc(m.school||'')} ${esc(m.grade||'')})</div>
-        <div>목표단계: <strong style="color:#e8720c;">${esc(meta.targetLevel)}</strong></div>
+        <div style="margin-top:2px;">목표단계: ${rewardLevelBadge(meta.targetLevel)}</div>
       </div>
     </div>
     ${areasHtml}
