@@ -290,6 +290,8 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
 .signbook .sb-table td.sb-sig-cell:hover{background:#fffbeb;}
 .signbook .sb-table td.sb-sig-cell img{max-height:20px;max-width:100%;display:block;margin:0 auto;}
 .signbook .sb-table td.sb-sig-cell .sig-ph{color:#bbb;font-size:9px;font-style:italic;line-height:24px;}
+.signbook .sb-table td.sb-sig-cell .sb-sig-del{position:absolute;top:1px;right:1px;width:14px;height:14px;border-radius:50%;background:rgba(200,20,20,.85);color:#fff;font-size:9px;line-height:14px;text-align:center;cursor:pointer;opacity:0;transition:opacity .1s;}
+.signbook .sb-table td.sb-sig-cell:hover .sb-sig-del{opacity:1;}
 /* 서명된 행 이름 진하게 */
 .signbook .sb-table tr.signed-row td{font-weight:900;color:#000;}
 .signbook .sb-org-footer{text-align:right;font-size:14px;font-weight:900;color:#000;margin-top:7px;letter-spacing:.03em;}
@@ -521,6 +523,7 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:12px
   .signbook .sb-table td.sb-sig-cell{height:auto;}
   .signbook .sb-table td.sb-sig-cell img{max-height:6mm;}
   .signbook .sb-table td.sb-sig-cell .sig-ph{display:none;}
+  .signbook .sb-table td.sb-sig-cell .sb-sig-del{display:none!important;}
   .signbook .sb-org-footer{font-size:10pt;margin-top:2mm;}
   .attend-bar,.attend-stat,#attendInfoBox,.modal-close-x,.print-btns,.tablet-mode{display:none!important;}
   .modal{position:static;background:none;padding:0;display:block!important;}
@@ -1364,7 +1367,7 @@ db.enablePersistence({synchronizeTabs:true}).catch(e=>console.warn('오프라인
 const SHARED_EMAIL = 'gwycc@hanmail.net'; // 공용 로그인 계정 — 실제 비밀번호는 코드에 없음(사용자가 PIN으로 입력)
 
 // ── 앱 버전 & GitHub 자동 업데이트 ──
-const APP_VERSION = '1.4.5';  // ← 업데이트할 때마다 이 숫자를 올려주세요
+const APP_VERSION = '1.5.0';  // ← 업데이트할 때마다 이 숫자를 올려주세요
 const GH_USER     = 'chc4380-alt';  // ← GitHub 사용자명
 const GH_REPO     = 'gwyouth-narachan'; // ← GitHub 저장소명
 const GH_BRANCH   = 'main';   // ← 브랜치명 (보통 main)
@@ -1487,6 +1490,28 @@ function getGhRawBase(){
 let members=[],schedules=[],attendance={},groups=[],jobs=[],beanTx=[],jobHistory=[],settings={orgName:'광양시청소년문화센터',programName:'청소년방과후아카데미',advisorName:'',year:'2026'};
 let selectedMemberId=null,selectedSchId=null,activeListGroup='all',selectedJobId=null;
 
+// ── 출석/서명 저장 구조 ──
+// attendance/{date} 문서 하나에 모든 학생의 서명(PNG)을 다 몰아넣으면 학생 수가 많은 날
+// Firestore 문서 용량 한도(1MB)를 넘겨서 저장이 실패하므로, 학생별로 별도 문서에 저장한다:
+//   attendance/{date}            → {scheduleId}
+//   attendance/{date}/attendRecords/{memberId} → {status, signature}
+// attendance[date] 형태(byMember/signatures)는 기존 렌더링 코드와 호환되도록 아래에서 합쳐서 재구성한다.
+let attendanceMeta={}, attendanceRecords={};
+function rebuildAttendanceView(){
+  const merged={};
+  Object.keys(attendanceMeta).forEach(date=>{
+    merged[date]={scheduleId:attendanceMeta[date].scheduleId||'',byMember:{},signatures:{}};
+  });
+  Object.keys(attendanceRecords).forEach(date=>{
+    if(!merged[date]) merged[date]={scheduleId:'',byMember:{},signatures:{}};
+    Object.entries(attendanceRecords[date]).forEach(([mid,rec])=>{
+      if(rec.status) merged[date].byMember[mid]=rec.status;
+      if(rec.signature) merged[date].signatures[mid]=rec.signature;
+    });
+  });
+  attendance=merged;
+}
+
 // ── 청소년자기도전포상제 ──
 const REWARD_AREAS=[
   {key:'self',label:'자기개발활동'},
@@ -1595,12 +1620,25 @@ function startApp(){
   db.collection('beanTx').onSnapshot(snap=>{ beanTx=snap.docs.map(d=>d.data()); refreshCurrentTab(); }, e=>console.error('beanTx sync', e));
   db.collection('jobHistory').onSnapshot(snap=>{ jobHistory=snap.docs.map(d=>d.data()); }, e=>console.error('jobHistory sync', e));
   db.collection('attendance').onSnapshot(snap=>{
-    attendance={};
-    snap.docs.forEach(d=>{ attendance[d.id]=d.data(); });
+    attendanceMeta={};
+    snap.docs.forEach(d=>{ attendanceMeta[d.id]=d.data(); });
+    rebuildAttendanceView();
     renderSignbookFromUI();
     const date=document.getElementById('attendDate')?.value;
     if(date) renderAttendStat(date);
   }, e=>console.error('attendance sync', e));
+  db.collectionGroup('attendRecords').onSnapshot(snap=>{
+    attendanceRecords={};
+    snap.docs.forEach(d=>{
+      const date=d.ref.parent.parent.id;
+      if(!attendanceRecords[date]) attendanceRecords[date]={};
+      attendanceRecords[date][d.id]=d.data();
+    });
+    rebuildAttendanceView();
+    renderSignbookFromUI();
+    const date=document.getElementById('attendDate')?.value;
+    if(date) renderAttendStat(date);
+  }, e=>console.error('attendRecords sync', e));
   db.collection('meta').doc('settings').onSnapshot(doc=>{
     if(doc.exists) settings={...settings,...doc.data()};
     updateHeader();
@@ -2100,10 +2138,14 @@ function renderAttendStat(date){
 function setAttendStatus(date,memberId,status){
   if(!attendance[date])attendance[date]={scheduleId:document.getElementById('attendSchedule').value,byMember:{},signatures:{}};
   const cur=attendance[date].byMember[memberId];
-  let fv;
-  if(cur===status){delete attendance[date].byMember[memberId];fv=firebase.firestore.FieldValue.delete();}
-  else{attendance[date].byMember[memberId]=status;fv=status;}
-  db.collection('attendance').doc(date).set({byMember:{[memberId]:fv}},{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));
+  const recRef=db.collection('attendance').doc(date).collection('attendRecords').doc(memberId);
+  if(cur===status){
+    delete attendance[date].byMember[memberId];
+    recRef.set({status:firebase.firestore.FieldValue.delete()},{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));
+  } else {
+    attendance[date].byMember[memberId]=status;
+    recRef.set({status},{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));
+  }
   renderAttendStat(date);renderSignbook(date);
 }
 
@@ -2147,7 +2189,7 @@ function renderSignbook(date){
       <td style="text-align:center">${i+1}</td>
       <td style="text-align:center">${esc(m.name)}</td>
       <td style="text-align:center">${esc(schoolShort)} / ${gradeShort}</td>
-      <td class="sb-sig-cell" onclick="openSignPad('${date}','${m.id}','${esc(m.name)}')">${sig?`<img src="${sig}" alt="서명">`:`<span class="sig-ph">클릭</span>`}</td>
+      <td class="sb-sig-cell" onclick="openSignPad('${date}','${m.id}','${esc(m.name)}')">${sig?`<img src="${sig}" alt="서명"><span class="sb-sig-del" title="서명 삭제" onclick="event.stopPropagation();deleteSignature('${date}','${m.id}','${esc(m.name)}')">✕</span>`:`<span class="sig-ph">클릭</span>`}</td>
     </tr>`;
   }).join('');
 
@@ -2173,7 +2215,18 @@ function renderSignbook(date){
   </div>`;
 }
 
-function clearAllSignatures(){const date=document.getElementById('attendDate').value;if(!date)return;if(!confirm('이 날의 모든 서명과 출석을 초기화할까요?'))return;const scheduleId=(attendance[date]||{}).scheduleId||'';if(attendance[date]){attendance[date].signatures={};attendance[date].byMember={};}db.collection('attendance').doc(date).set({scheduleId,byMember:{},signatures:{}}).catch(err=>toast('저장 실패: '+err.message,'error'));renderSignbook(date);renderAttendStat(date);toast('초기화 완료');}
+function clearAllSignatures(){
+  const date=document.getElementById('attendDate').value;if(!date)return;
+  if(!confirm('이 날의 모든 서명과 출석을 초기화할까요?'))return;
+  if(attendance[date]){attendance[date].signatures={};attendance[date].byMember={};}
+  const recCol=db.collection('attendance').doc(date).collection('attendRecords');
+  recCol.get().then(snap=>{
+    const batch=db.batch();
+    snap.docs.forEach(d=>batch.delete(d.ref));
+    return batch.commit();
+  }).catch(err=>toast('저장 실패: '+err.message,'error'));
+  renderSignbook(date);renderAttendStat(date);toast('초기화 완료');
+}
 
 // ── 서명패드 ──
 let _signCtx=null,_drawing=false,_sDate='',_sMId='';
@@ -2232,11 +2285,21 @@ function saveSignature(){
   if(!attendance[_sDate].signatures)attendance[_sDate].signatures={};
   attendance[_sDate].signatures[_sMId]=dataUrl;
   if(!attendance[_sDate].byMember[_sMId])attendance[_sDate].byMember[_sMId]='present';
-  db.collection('attendance').doc(_sDate).set({signatures:{[_sMId]:dataUrl},byMember:{[_sMId]:attendance[_sDate].byMember[_sMId]}},{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));
+  db.collection('attendance').doc(_sDate).collection('attendRecords').doc(_sMId)
+    .set({signature:dataUrl,status:attendance[_sDate].byMember[_sMId]},{merge:true})
+    .catch(err=>toast('저장 실패: '+err.message,'error'));
   if(document.getElementById('signSaveDefault').checked&&mm){mm.defaultSign=dataUrl;db.collection('members').doc(_sMId).set({defaultSign:dataUrl},{merge:true}).catch(err=>toast('저장 실패: '+err.message,'error'));}
   closeSignPad();renderSignbook(_sDate);renderAttendStat(_sDate);toast('✅ 서명 저장 완료');
 }
 function closeSignPad(){closeModal('signPadModal');_signCtx=null;_drawing=false;}
+function deleteSignature(date,memberId,name){
+  if(!confirm(`"${name}" 님의 서명을 삭제할까요?`))return;
+  if(attendance[date]&&attendance[date].signatures)delete attendance[date].signatures[memberId];
+  db.collection('attendance').doc(date).collection('attendRecords').doc(memberId)
+    .set({signature:firebase.firestore.FieldValue.delete()},{merge:true})
+    .catch(err=>toast('삭제 실패: '+err.message,'error'));
+  renderSignbook(date);renderAttendStat(date);toast('🗑 서명이 삭제되었습니다');
+}
 
 // ── 태블릿 ──
 function openTabletMode(){
